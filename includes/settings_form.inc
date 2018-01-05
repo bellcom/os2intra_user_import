@@ -878,11 +878,6 @@ $csv_cols_fallback_1 = array(
 function os2intra_user_import_settings_validate(&$form, &$form_state) {
   $values = array();
   foreach ($form_state['values']['os2intra_mapping'] as $field => $value) {
-      // If same column is selected twice throw error
-      //FIXME: allowing to use the same column twice
-//      if (in_array($value['primary'], $values) && $value['primary'] != 'none') {
-//        form_set_error('os2intra_mapping]['. $field . '][primary', t('Cannot use column twice'));
-//      }
       if (in_array($value['primary'], $values) && $value['primary'] != 'none') {
         drupal_set_message(t('Some of the columns are used twice in mapping, that is not an error if it has been done on purpose'), WATCHDOG_WARNING);
       }
