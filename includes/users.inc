@@ -355,14 +355,6 @@ function os2intra_user_import_save_user($user, $uid = '') {
     $fields['name'] = $user['ad_id'];
     $fields['pass'] = $password;
   }
-  // FIXME: the following lines are from odsherred
-//  else {
-  // we need that to fix wrong usernames
-  // previous errors, when employee_id was using as username
-//    if ($account->name == $user['ad_id']) {
-//      $fields['name'] = os2intra_user_import_generate_username($user);
-//    }
-//  }
 
 
   // Set Opus Roles
@@ -443,6 +435,9 @@ function os2intra_user_import_generate_username($user) {
   $username = strtolower(substr($cln_department, 0, 3)) . '-';
   $username .= strtolower(substr($cln_first_name, 0, 3));
   $username .= strtolower(substr($cln_last_name, 0, 3));
+  
+//FIXME: add employee_id to username
+  //$username .= $user['employee_id'];
 
   // FIXME: not allowing name increase
 //  $users_query = db_query('SELECT u.name FROM {users} u WHERE u.name LIKE :name', array(':name' => $username.'%'));
