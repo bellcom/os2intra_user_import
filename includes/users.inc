@@ -147,7 +147,6 @@ function os2intra_user_import_save_user($user, $uid = '') {
   $query = new EntityFieldQuery;
   $query->entityCondition('entity_type', 'node');
 
-  //FIXME: on odsherred $query->fieldCondition('field_os2intra_department_id', 'value', $user['centre'], '=');
   $group_department_title_field = variable_get('os2intra_user_import_group_department_title_field');
   // Property field
   if (strpos($group_department_title_field, 'field_') !== 0) {
@@ -263,7 +262,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     $query = new EntityFieldQuery;
     $result = $query
       ->entityCondition('entity_type', 'taxonomy_term')
-      ->propertyCondition('name', $opus_role)
+      ->propertyCondition('name', trim($opus_role))
       ->propertyCondition('vid', $opus_role_vocabulary->vid)
       ->execute();
 
@@ -313,8 +312,6 @@ function os2intra_user_import_save_user($user, $uid = '') {
     variable_get('os2intra_user_import_birthday_field') => array(LANGUAGE_NONE => array(0 => array('value' => (array_key_exists('birthdate', $user)) ? $user['birthdate'] : NULL))),
 
     //Set users nodes
-    //FIXME: it seems that og_user_node is never used, therefore exchanged it to variable_get('os2intra_user_group_field')
-    //'og_user_node'                    => array(LANGUAGE_NONE => $og_user_node),
     variable_get('os2intra_user_group_field') => array(LANGUAGE_NONE => $og_user_node),
 
     // Set department membership
@@ -369,10 +366,11 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
 
   // Set Opus Roles
-  //FIXME: check if setting opus fields is safe on installation where they are not present
-  $fields['os2intra_users_opus_roles'][LANGUAGE_NONE] = array();
-  foreach ($opus_role_tids as $opus_role_tid) {
-    $fields['os2intra_users_opus_roles'][LANGUAGE_NONE][]['tid'] = $opus_role_tid;
+  if (field_info_instance('user', 'os2intra_users_opus_roles', 'user')) {
+    $fields['os2intra_users_opus_roles'][LANGUAGE_NONE] = array();
+    foreach ($opus_role_tids as $opus_role_tid) {
+      $fields['os2intra_users_opus_roles'][LANGUAGE_NONE][]['tid'] = $opus_role_tid;
+    }
   }
 
   // Save user

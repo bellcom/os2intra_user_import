@@ -361,10 +361,9 @@ function os2intra_user_import_departments_without_employees() {
   return $table;
 }
 
-//FIXME: function from odsherred to redirect to add simplesaml info, check that there is no problems with it
 function os2intra_user_import_user_insert(&$edit, $account, $category) {
   //user create manually by admin
-  if (isset($_POST['form_id']) && $_POST['form_id'] == 'user_register_form' ){
+  if (isset($_POST['form_id']) && $_POST['form_id'] == 'user_register_form' && field_info_instance('user', 'os2intra_users_ad_name', 'user')){
 
     // Create authmap for user
     $authmap = array(

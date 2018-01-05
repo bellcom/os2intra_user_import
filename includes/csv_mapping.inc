@@ -35,18 +35,6 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
 
   foreach ($csv as $row) {
 
-    //FIXME: not required?
-    // Look for where headings start and ignore everything before the headings.
-//    if (!$at_content
-//      && (!array_key_exists($mapping['os2intra_mapping_ad_id']['primary'], $row)
-//        || $row[$mapping['os2intra_mapping_ad_id']['primary']] != 'AD-ID')
-//    ) {
-//      continue;
-//    }
-//    else {
-//      $at_content = TRUE;
-//    }
-
     $mapped_row = array();
     foreach ($map_fallback as $field => $variable) {
 
@@ -83,7 +71,6 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
   }
 
   // Skip first row, headers
-  //FIXME: check if we need to unset the first row?
   unset($rows[0]);
   return $rows;
 }
