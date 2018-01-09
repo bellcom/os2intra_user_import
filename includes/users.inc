@@ -323,6 +323,8 @@ function os2intra_user_import_save_user($user, $uid = '') {
     'timezone'                        => 'Europe/Copenhagen',
     // The organisational ids from this import
     'field_os2intra_import_groups'    => $import_groups,
+
+    'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => variable_get('os2intra_user_import_epoch')))),
   );
 
   if (isset($user['email'])) {
