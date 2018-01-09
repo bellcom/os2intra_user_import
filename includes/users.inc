@@ -430,14 +430,16 @@ function os2intra_user_import_save_user($user, $uid = '') {
 function os2intra_user_import_generate_username($user) {
   // Generate username
   // Todo: make configurable
-  $cln_first_name = preg_replace('/[^A-Za-z0-9\-]/', '', $user['first_name']);
-  $cln_last_name = preg_replace('/[^A-Za-z0-9\-]/', '', $user['last_name']);
-  $cln_department = preg_replace('/[^A-Za-z0-9\-]/', '', $user['department']);
+  //$cln_first_name = preg_replace('/[^A-Za-z0-9\-]/', '', $user['first_name']);
+  //$cln_last_name = preg_replace('/[^A-Za-z0-9\-]/', '', $user['last_name']);
+  //$cln_department = preg_replace('/[^A-Za-z0-9\-]/', '', $user['department']);
 
-  $username = strtolower(substr($cln_department, 0, 3)) . '-';
-  $username .= strtolower(substr($cln_first_name, 0, 3));
-  $username .= strtolower(substr($cln_last_name, 0, 3));
-  
+  //$username = strtolower(substr($cln_department, 0, 3)) . '-';
+  //$username .= strtolower(substr($cln_first_name, 0, 3));
+  //$username .= strtolower(substr($cln_last_name, 0, 3));
+
+  $username = trim($user['first_name']) . ' ' . trim($user['last_name']) . ' - ' . trim($user['department']);
+
 //FIXME: add employee_id to username
   //$username .= $user['employee_id'];
 

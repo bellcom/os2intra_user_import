@@ -263,6 +263,11 @@ $csv_cols_fallback_1 = array(
     '#title'         => t('Add managers to departments'),
     '#default_value' => variable_get('os2intra_add_managers_to_departments')
   );
+  $form['os2intra_structure_settings']['os2intra_generate_username'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Generate unique user name from "user full name + department name" when AD id is not present'),
+    '#default_value' => variable_get('os2intra_generate_username')
+  );
 
   $form['os2intra_structure_settings']['os2intra_user_import_birthdate_db_format'] = array(
     '#type'          => 'textfield',

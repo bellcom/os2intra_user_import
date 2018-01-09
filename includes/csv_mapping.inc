@@ -59,7 +59,17 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
 
     // Generate ad_id if missing
     if (!isset($mapped_row['ad_id'])) {
-      $mapped_row['ad_id'] = os2intra_user_import_generate_username($mapped_row);
+      if (isset($mapped_row['ad_name']) && !empty($mapped_row['ad_name'])) {
+        $mapped_row['ad_id'] = $mapped_row['ad_name'];
+      }
+      else {
+        if (variable_get('os2intra_generate_username')) {
+          $mapped_row['ad_id'] = os2intra_user_import_generate_username($mapped_row);
+        }
+        else {
+          continue;
+        }
+      }
     }
 
     $rows[] = $mapped_row;
