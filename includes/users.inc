@@ -183,7 +183,8 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
   $og_user_node = array();
   // Get a list of current nids
-  if ( $og_user_node_field = field_get_items('user', $account, 'og_user_node') ) {
+  //FIXME We need to user variable here, instead "og_user_node" field
+  if ( $og_user_node_field = field_get_items('user', $account, variable_get('os2intra_user_group_field')) ) {
     foreach ($og_user_node_field as $key => $field) {
       if (isset($field['target_id']) && node_load($field['target_id']) )    {
         $og_user_node[]['target_id'] = $field['target_id'];
