@@ -237,6 +237,13 @@ $csv_cols_fallback_1 = array(
     '#options'       => $user_type_fields_select,
     '#default_value' => variable_get('os2intra_user_group_field')
   );
+    $form['os2intra_structure_settings']['os2intra_user_organisation_field'] = array(
+    '#type'          => 'select',
+    '#title'         => t('User organisation reference field'),
+    '#required'      => TRUE,
+    '#options'       => $user_type_fields_select,
+    '#default_value' => variable_get('os2intra_user_organisation_field')
+  );
   $form['os2intra_structure_settings']['os2intra_user_department_field'] = array(
     '#type'          => 'select',
     '#title'         => t('User department reference field'),
