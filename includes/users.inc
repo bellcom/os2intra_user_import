@@ -119,7 +119,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     $og_user_node = array();
     $import_groups = array();
     // Get a list of current group nids
-    if ($og_user_node_field = field_get_items('user', $account, variable_get('os2intra_user_group_field'))) { // gruppemedlemskab
+    if ($og_user_node_field = field_get_items('user', $account, variable_get('os2intra_user_organisation_field'))) { // gruppemedlemskab
       foreach ($og_user_node_field as $key => $field) {
         $og_user_node[$field['target_id']] = $field['target_id'];
       }
@@ -333,6 +333,9 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
     'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => $current_timestamp))),
   );
+  if (variable_get('os2intra_user_organisation_field') != 'none') {
+      $fields['os2intra_user_organisation_field'] = array(LANGUAGE_NONE => array(0 => array('target_id' => array($department_nid))));
+    }
 
   if (isset($user['email'])) {
     $fields['mail'] = $user['email'];
@@ -386,15 +389,15 @@ function os2intra_user_import_save_user($user, $uid = '') {
       }
     }
   }
-
-  // Set department membership and role
-  $values = array(
-    'entity' => $account,
-    'field_name' => variable_get('os2intra_user_group_field'),
-  );
-  og_group('node', $department_nid, $values);
-  og_role_grant('node', $department_nid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
-
+  if ($department_nid) {
+    // Set department membership and role
+    $values = array(
+      'entity' => $account,
+      'field_name' => (variable_get('os2intra_user_organisation_field') != 'none') ? variable_get('os2intra_user_organisation_field') : variable_get('os2intra_user_group_field'),
+    );
+    og_group('node', $department_nid, $values);
+    og_role_grant('node', $department_nid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
+  }
   //create subscription to user's department
   $user_subscriptions = flag_get_user_flags('node', $department_nid, $account->uid);
   if (!isset($user_subscriptions['subscribe_og'])) {
