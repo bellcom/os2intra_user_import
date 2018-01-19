@@ -427,10 +427,10 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
   // Write log entry
   if ($uid) {
-    os2intra_user_import_save_log($user['employee_id'], 'update user: ' . $user['employee_id'] . ' ' . $user['first_name'] . ' ' . $user['last_name'] . 'status: ' . $account->uid);
+    os2intra_user_import_save_log($user['employee_id'], 'update user: ' . $user['employee_id'] . ' ' . $user['first_name'] . ' ' . $user['last_name'] . ' uid: ' . $account->uid);
   }
   else {
-    os2intra_user_import_save_log($user['employee_id'], 'create user: ' . $user['first_name'] . 'status: ' . $account->uid);
+    os2intra_user_import_save_log($user['employee_id'], 'create user: ' . $user['first_name'] . ' uid: ' . $account->uid);
   }
 }
 

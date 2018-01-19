@@ -109,7 +109,6 @@ function os2intra_user_import_form_alter(&$form, &$form_state, $form_id) {
 
   // Settings form
   if ($form_id == 'os2intra_settings_settings_form') {
-    dpm('here');
 
     $form['os2intra_user_import_activate'] = array(
       '#type' => 'fieldset',

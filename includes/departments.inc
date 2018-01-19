@@ -92,9 +92,10 @@ function os2intra_user_import_groups($users) {
         $parent_term->parent = array($parent_tid);
         $parent_term->field_os2intra_department_id[LANGUAGE_NONE][0]['value'] = $user['centre'];
         $parent_term->vid = $vocab->vid;
-
-        if($tid = os2intra_user_import_get_parent_term_from_dn($user['dn'], $user['centre_name'], 'os2intra_organisation_tax')) {
-          $parent_term->parent = array($tid);
+        if (isset($user['dn'])) {
+          if($tid = os2intra_user_import_get_parent_term_from_dn($user['dn'], $user['centre_name'], 'os2intra_organisation_tax')) {
+            $parent_term->parent = array($tid);
+          }
         }
         taxonomy_term_save($parent_term);
         $parent_tid = $parent_term->tid;
