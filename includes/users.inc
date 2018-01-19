@@ -333,7 +333,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
     'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => $current_timestamp))),
   );
-  if (variable_get('os2intra_user_organisation_field')) {
+  if (variable_get('os2intra_user_organisation_field') != 'none') {
       $fields['os2intra_user_organisation_field'] = array(LANGUAGE_NONE => array(0 => array('target_id' => array($department_nid))));
     }
 
@@ -393,7 +393,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     // Set department membership and role
     $values = array(
       'entity' => $account,
-      'field_name' => variable_get('os2intra_user_organisation_field'),
+      'field_name' => (variable_get('os2intra_user_organisation_field') != 'none') ? variable_get('os2intra_user_organisation_field') : variable_get('os2intra_user_group_field'),
     );
     og_group('node', $department_nid, $values);
     og_role_grant('node', $department_nid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
