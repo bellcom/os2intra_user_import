@@ -52,6 +52,9 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
         }
       }
     }
+    if (!isset($mapped_row['centre_name'])) {
+      $mapped_row['centre_name']= $mapped_row['centre'];
+    }
     // Skip if row has no ad_id and no employee_id
     if ($mapped_row['ad_id'] == '' && $mapped_row['employee_id'] == '' ) {
       continue;
