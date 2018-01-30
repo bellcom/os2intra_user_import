@@ -322,12 +322,14 @@ function os2intra_user_import_save_user($user, $uid = '') {
     variable_get('os2intra_user_group_field') => array(LANGUAGE_NONE => $og_user_node),
 
     // Set department membership
-    variable_get('os2intra_user_department_field') => variable_get('os2intra_save_old_departments', false) ? $import_groups : array(LANGUAGE_NONE => array(0 => array('target_id' => array($department_nid)))),
+    variable_get('os2intra_user_department_field') => variable_get('os2intra_save_old_departments', false) ? $user_groups : array(LANGUAGE_NONE => array(0 => array('target_id' => $department_nid))),
 
     // Activate user
     'status'                          => ($account->uid != 0) ? $account->status : 1,
 
     'timezone'                        => 'Europe/Copenhagen',
+    
+    'field_os2intra_import_groups' => $import_groups,
    
     'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => $current_timestamp))),
   );
@@ -418,7 +420,9 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
   // Add users to parent departments
   if (variable_get('os2intra_add_users_to_parent_departments')) {
+ 
     os2intra_user_import_add_user_to_parent_departments($account);
+
   }
 
   // Write log entry
