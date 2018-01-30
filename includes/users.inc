@@ -193,7 +193,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
   }
 
   // Get node id for centre
-  $query = new EntityFieldQuery;
+/*  $query = new EntityFieldQuery;
   $query->entityCondition('entity_type', 'taxonomy_term');
   $query->fieldCondition('field_os2intra_department_id', 'value', $user['centre'], '=');
   $result = $query->execute();
@@ -207,7 +207,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     if ($new_group_nid !== $centre_nid) {
       $import_groups[LANGUAGE_NONE][]['target_id'] = $centre_nid;
     }
-  }
+  }*/
 
   // If there are no import groups, we add the groups, the user had at import.
   // import groups will be set during this import, so next time, this should
