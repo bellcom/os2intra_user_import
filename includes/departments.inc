@@ -210,9 +210,10 @@ function os2intra_user_import_add_user_to_parent_departments($account) {
   $parent_terms = taxonomy_get_parents_all($organisation_tid);
 
   foreach ($parent_terms as $parent_term) {
-    $parent_tids[] = $parent_term->tid;
+     if ($parent_term->tid != $organisation_tid ) {
+       $parent_tids[] = $parent_term->tid;
+     }
   }
-
   // Find the node ID for each department in parent terms
   $query = new EntityFieldQuery;
   $query->entityCondition('entity_type', 'node');
@@ -227,7 +228,7 @@ function os2intra_user_import_add_user_to_parent_departments($account) {
 
     $values = array(
       'entity' => $account,
-      'field_name' => variable_get('os2intra_user_department_field'),
+      'field_name' => variable_get('os2intra_user_organisation_field'),
     );
 
     foreach ($og_group_node_ids as $nid) {

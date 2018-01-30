@@ -119,13 +119,13 @@ function os2intra_user_import_save_user($user, $uid = '') {
     $og_user_node = array();
     $import_groups = array();
     // Get a list of current group nids
-    if ($og_user_node_field = field_get_items('user', $account, variable_get('os2intra_user_organisation_field'))) { // gruppemedlemskab
+    if ($og_user_node_field = field_get_items('user', $account, variable_get('os2intra_user_department_field'))) { // gruppemedlemskab
       foreach ($og_user_node_field as $key => $field) {
         $og_user_node[$field['target_id']] = $field['target_id'];
       }
     }
     // And organisation and centre nid from last import
-    if ($import_group_field = field_get_items('user', $account, variable_get('os2intra_user_department_field'))) { // afdeling
+    if ($import_group_field = field_get_items('user', $account, variable_get('os2intra_user_organisation_field'))) { // afdeling
       foreach ($import_group_field as $key => $field) {
         $import_groups[$field['target_id']] = $field['target_id'];
       }
@@ -319,7 +319,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     variable_get('os2intra_user_import_birthday_field') => array(LANGUAGE_NONE => array(0 => array('value' => (array_key_exists('birthdate', $user)) ? $user['birthdate'] : NULL))),
 
     //Set users nodes
-    variable_get('os2intra_user_group_field') => array(LANGUAGE_NONE => $og_user_node),
+    variable_get('os2intra_user_group_field') => variable_get('os2intra_save_old_departments', false) ? $import_groups : array(LANGUAGE_NONE => $og_user_node),
 
     // Set department membership
     variable_get('os2intra_user_department_field') => array(LANGUAGE_NONE => array(0 => array('target_id' => array($department_nid)))),
@@ -333,9 +333,6 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
     'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => $current_timestamp))),
   );
-  if (variable_get('os2intra_user_organisation_field') != 'none') {
-      $fields['os2intra_user_organisation_field'] = array(LANGUAGE_NONE => array(0 => array('target_id' => array($department_nid))));
-    }
 
   if (isset($user['email'])) {
     $fields['mail'] = $user['email'];
@@ -379,13 +376,14 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
   // Save user
   $account = user_save($account, $fields);
-
-  // Remove all department memberships
-  $gid_types = og_get_groups_by_user($account);
-  if (is_array($gid_types)) {
-    foreach ($gid_types as $gid_type) {
-      foreach ($gid_type as $gid) {
-        og_role_revoke('node', $gid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
+  if (variable_get('os2intra_revoke_og_roles', false) ) {
+    // Remove all department memberships
+    $gid_types = og_get_groups_by_user($account);
+    if (is_array($gid_types)) {
+      foreach ($gid_types as $gid_type) {
+        foreach ($gid_type as $gid) {
+          og_role_revoke('node', $gid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
+        }
       }
     }
   }
