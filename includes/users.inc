@@ -319,18 +319,16 @@ function os2intra_user_import_save_user($user, $uid = '') {
     variable_get('os2intra_user_import_birthday_field') => array(LANGUAGE_NONE => array(0 => array('value' => (array_key_exists('birthdate', $user)) ? $user['birthdate'] : NULL))),
 
     //Set users nodes
-    variable_get('os2intra_user_group_field') => variable_get('os2intra_save_old_departments', false) ? $import_groups : array(LANGUAGE_NONE => $og_user_node),
+    variable_get('os2intra_user_group_field') => array(LANGUAGE_NONE => $og_user_node),
 
     // Set department membership
-    variable_get('os2intra_user_department_field') => array(LANGUAGE_NONE => array(0 => array('target_id' => array($department_nid)))),
+    variable_get('os2intra_user_department_field') => variable_get('os2intra_save_old_departments', false) ? $import_groups : array(LANGUAGE_NONE => array(0 => array('target_id' => array($department_nid)))),
 
     // Activate user
     'status'                          => ($account->uid != 0) ? $account->status : 1,
 
     'timezone'                        => 'Europe/Copenhagen',
-    // The organisational ids from this import
-    'field_os2intra_import_groups'    => $import_groups,
-
+   
     'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => $current_timestamp))),
   );
 
