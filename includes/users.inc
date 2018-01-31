@@ -420,7 +420,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
   }
 
   // Add users to parent departments
-  if (variable_get('os2intra_add_users_to_parent_departments')) {
+  if (variable_get('os2intra_add_users_to_parent_departments') && $department_nid) {
     os2intra_user_import_add_user_to_parent_departments($account);
   }
 

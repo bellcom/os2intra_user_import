@@ -26,7 +26,6 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
     'department_name' => 'os2intra_mapping_department_name',
     'opus_roles' => 'os2intra_mapping_opus_roles'
   );
-
   // Load data from file
   $csv = array_map(function ($d) {
     return str_getcsv($d, variable_get('os2intra_user_import_delimiter'));
@@ -51,6 +50,9 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
           }
         }
       }
+    }
+    if (!isset($mapped_row["centre"])) {
+      $mapped_row["centre"] = _os2intra_user_import_get_default_department_id();
     }
     if (!isset($mapped_row['centre_name'])) {
       $mapped_row['centre_name']= $mapped_row['centre'];
