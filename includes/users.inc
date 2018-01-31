@@ -250,9 +250,11 @@ function os2intra_user_import_save_user($user, $uid = '') {
   $opus_roles = array();
 
   if ($uid) {
-    foreach ($account->os2intra_users_opus_roles as $os2intra_users_opus_role) {
-      foreach ($os2intra_users_opus_role as $key => $value) {
-        $keep_opus_roles[] = $value;
+    if (isset($account->os2intra_users_opus_roles)) {
+      foreach ($account->os2intra_users_opus_roles as $os2intra_users_opus_role) {
+        foreach ($os2intra_users_opus_role as $key => $value) {
+          $keep_opus_roles[] = $value;
+        }
       }
     }
   }
