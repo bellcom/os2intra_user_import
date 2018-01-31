@@ -33,7 +33,5 @@ function os2intra_user_import_create_opus_roles($opus_roles) {
       }
     }
     os2intra_user_import_save_log('', 'Opus: creation new opus role finished');
-  } else {
-    os2intra_user_import_save_log('', 'Vocabulary os2intra_bi_opus_roles does not exist, opus role creating skipped');
   }
 }
