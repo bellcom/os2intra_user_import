@@ -101,7 +101,7 @@ function os2intra_user_import_form_alter(&$form, &$form_state, $form_id) {
   // Use os2intra_user_import_add_managers_to_departments() for submits
   if ($form_id == 'taxonomy_form_term') {
     if (variable_get('os2intra_add_managers_to_departments')) {
-      if (is_object($form['#term']) && $form['#term']->vid == variable_get('os2intra_groups_vocabulary_vid')) {
+      if (is_array($form['#term']) && $form['#term']['vid'] == variable_get('os2intra_groups_vocabulary_vid')) {
         $form['#submit'][] = "os2intra_user_import_add_managers_to_departments";
       }
     }
