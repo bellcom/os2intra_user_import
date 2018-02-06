@@ -73,3 +73,20 @@ function _os2intra_user_import_get_department_nid($department) {
   }
   return FALSE;
 }
+/*
+ * Get department ID of default parent
+ */
+
+function _os2intra_user_import_get_default_department_id(){
+  $vocab = taxonomy_vocabulary_load(variable_get('os2intra_groups_vocabulary_vid'));
+  $tree = taxonomy_get_tree($vocab->vid);
+
+  // find first term with no parents
+  // used as default parent tid later
+  foreach ($tree as $term) {
+    if ($term->parents[0] == 0) {
+      $default_parent = taxonomy_term_load($term->tid);
+      return $default_parent->field_os2intra_department_id[LANGUAGE_NONE][0]['value'];
+    }
+  }
+}

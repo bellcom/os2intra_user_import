@@ -101,7 +101,7 @@ function os2intra_user_import_form_alter(&$form, &$form_state, $form_id) {
   // Use os2intra_user_import_add_managers_to_departments() for submits
   if ($form_id == 'taxonomy_form_term') {
     if (variable_get('os2intra_add_managers_to_departments')) {
-      if (is_object($form['#term']) && $form['#term']->vid == variable_get('os2intra_groups_vocabulary_vid')) {
+      if (is_array($form['#term']) && $form['#term']['vid'] == variable_get('os2intra_groups_vocabulary_vid')) {
         $form['#submit'][] = "os2intra_user_import_add_managers_to_departments";
       }
     }
@@ -242,17 +242,28 @@ function os2intra_user_import_run_with_drush() {
           os2intra_user_import_save_log('', 'Duplicate User AD id found in import file: '. implode(', ', $dup_id));
         }
 
+
         $update_users = os2intra_user_import_check_users($users, $dup_emails, $dup_id);
         // Loop over users and create
         os2intra_user_import_save_log('', 'Start Creating Users');
 
         foreach ($users as $user) {
+          if (empty($user['department'])) {
+            error_log('Department missing - dropping ' . $group_line['ad_id']);
+            os2intra_user_import_save_log('', 'Skipping user. department is missing. AD_ID:' . $user['ad_id'] . ' User ' . $user['first_name'] . ' ' . $user['last_name']);
+            continue;
+          }
           os2intra_user_import_save_user($user);
         }
         os2intra_user_import_save_log('', 'End Creating Users');
         // Update users
         os2intra_user_import_save_log('', 'Start Update Users');
         foreach ($update_users as $uid => $user) {
+          if (empty($user['department'])) {
+            error_log('Department missing - dropping ' . $group_line['ad_id']);
+            os2intra_user_import_save_log('', 'Skipping user. department is missing. AD_ID:' . $user['ad_id'] . ' User ' . $user['first_name'] . ' ' . $user['last_name']);
+            continue;
+          }
           os2intra_user_import_save_user($user, $uid);
         }
         os2intra_user_import_save_log('', 'End Update Users');

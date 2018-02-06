@@ -271,6 +271,18 @@ $csv_cols_fallback_1 = array(
     '#title'         => t('Add managers to departments'),
     '#default_value' => variable_get('os2intra_add_managers_to_departments')
   );
+  $form['os2intra_structure_settings']['os2intra_save_old_departments'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Save old departments references during import'),
+    '#description'   => t('If unchecked only current department reference will be saved for user'),
+    '#default_value' => variable_get('os2intra_save_old_departments')
+  );
+  $form['os2intra_structure_settings']['os2intra_revoke_og_roles'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Save old departments memberships'),
+    '#description'   => t('If unchecked only membership in current department will be added'),
+    '#default_value' => variable_get('os2intra_revoke_og_roles')
+  );
   $form['os2intra_structure_settings']['os2intra_generate_username'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Generate unique user name from "user full name + department name" when AD id is not present'),

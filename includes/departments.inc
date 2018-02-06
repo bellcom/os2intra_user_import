@@ -190,7 +190,7 @@ function os2intra_user_import_create_department($tid, $department, $department_n
  * Add user to parent departments
  */
 function os2intra_user_import_add_user_to_parent_departments($account) {
-  $og_department_node = node_load(field_get_items('user', $account, variable_get('os2intra_user_department_field'))[0]['target_id']);
+  $og_department_node = node_load(field_get_items('user', $account, variable_get('os2intra_user_organisation_field'))[0]['target_id']);
   if (empty($og_department_node)) {
     return;
   }
@@ -201,16 +201,17 @@ function os2intra_user_import_add_user_to_parent_departments($account) {
   // Add user to their primary department and give them the 'medarbejder' role
   $values = array(
     'entity' => $account,
-    'field_name' => variable_get('os2intra_user_department_field'),
+    'field_name' => variable_get('os2intra_user_organisation_field'),
   );
   og_group('node', $og_department_node->nid, $values);
   og_role_grant('node', $og_department_node->nid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
-
   // Add user to all parent departments and give 'organisatorisk' role on them.
   $parent_terms = taxonomy_get_parents_all($organisation_tid);
 
   foreach ($parent_terms as $parent_term) {
-    $parent_tids[] = $parent_term->tid;
+    if ($parent_term->tid != $organisation_tid) {
+      $parent_tids[] = $parent_term->tid;
+    }
   }
 
   // Find the node ID for each department in parent terms

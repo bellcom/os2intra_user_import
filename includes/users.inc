@@ -193,7 +193,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
   }
 
   // Get node id for centre
-  $query = new EntityFieldQuery;
+/*  $query = new EntityFieldQuery;
   $query->entityCondition('entity_type', 'taxonomy_term');
   $query->fieldCondition('field_os2intra_department_id', 'value', $user['centre'], '=');
   $result = $query->execute();
@@ -207,7 +207,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     if ($new_group_nid !== $centre_nid) {
       $import_groups[LANGUAGE_NONE][]['target_id'] = $centre_nid;
     }
-  }
+  }*/
 
   // If there are no import groups, we add the groups, the user had at import.
   // import groups will be set during this import, so next time, this should
@@ -250,9 +250,11 @@ function os2intra_user_import_save_user($user, $uid = '') {
   $opus_roles = array();
 
   if ($uid) {
-    foreach ($account->os2intra_users_opus_roles as $os2intra_users_opus_role) {
-      foreach ($os2intra_users_opus_role as $key => $value) {
-        $keep_opus_roles[] = $value;
+    if (isset($account->os2intra_users_opus_roles)) {
+      foreach ($account->os2intra_users_opus_roles as $os2intra_users_opus_role) {
+        foreach ($os2intra_users_opus_role as $key => $value) {
+          $keep_opus_roles[] = $value;
+        }
       }
     }
   }
@@ -322,7 +324,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     variable_get('os2intra_user_group_field') => array(LANGUAGE_NONE => $og_user_node),
 
     // Set department membership
-    variable_get('os2intra_user_department_field') => array(LANGUAGE_NONE => array(0 => array('target_id' => array($department_nid)))),
+    variable_get('os2intra_user_organisation_field') => variable_get('os2intra_save_old_departments', false) ? $user_groups : array(LANGUAGE_NONE => array(0 => array('target_id' => $department_nid))),
 
     // Activate user
     'status'                          => ($account->uid != 0) ? $account->status : 1,
@@ -333,10 +335,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
     'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => $current_timestamp))),
   );
-  if (variable_get('os2intra_user_organisation_field') != 'none') {
-      $fields['os2intra_user_organisation_field'] = array(LANGUAGE_NONE => array(0 => array('target_id' => array($department_nid))));
-    }
-
+  
   if (isset($user['email'])) {
     $fields['mail'] = $user['email'];
     $fields['init'] = $user['email'];
@@ -380,12 +379,14 @@ function os2intra_user_import_save_user($user, $uid = '') {
   // Save user
   $account = user_save($account, $fields);
 
+  if (variable_get('os2intra_revoke_og_roles', false) ) {
   // Remove all department memberships
-  $gid_types = og_get_groups_by_user($account);
-  if (is_array($gid_types)) {
-    foreach ($gid_types as $gid_type) {
-      foreach ($gid_type as $gid) {
-        og_role_revoke('node', $gid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
+    $gid_types = og_get_groups_by_user($account);
+    if (is_array($gid_types)) {
+      foreach ($gid_types as $gid_type) {
+        foreach ($gid_type as $gid) {
+          og_role_revoke('node', $gid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
+        }
       }
     }
   }
@@ -393,7 +394,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     // Set department membership and role
     $values = array(
       'entity' => $account,
-      'field_name' => (variable_get('os2intra_user_organisation_field') != 'none') ? variable_get('os2intra_user_organisation_field') : variable_get('os2intra_user_group_field'),
+      'field_name' => variable_get('os2intra_user_organisation_field')
     );
     og_group('node', $department_nid, $values);
     og_role_grant('node', $department_nid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
@@ -421,7 +422,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
   }
 
   // Add users to parent departments
-  if (variable_get('os2intra_add_users_to_parent_departments')) {
+  if (variable_get('os2intra_add_users_to_parent_departments') && $department_nid) {
     os2intra_user_import_add_user_to_parent_departments($account);
   }
 
