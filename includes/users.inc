@@ -55,12 +55,14 @@ function os2intra_user_import_check_users(&$users, $duplicate_emails, $duplicate
   $update_users = array();
   foreach ($users as $key => $user) {
     if (array_search($user['email'], $duplicate_emails) !== false) {
+      os2intra_user_import_save_log('', 'Duplicate email found: Skip user ' . $user['email']);
       unset($users[$key]);
       continue;
     }
 
     if (array_search($user['ad_id'], $duplicate_ids) !== false) {
       unset($users[$key]);
+      os2intra_user_import_save_log('', 'Duplicate user AD found: Skip user ' . $user['ad_id']);
       continue;
     }
 
