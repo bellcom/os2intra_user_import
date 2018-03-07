@@ -46,31 +46,33 @@ function os2intra_user_import_groups($users) {
       $term = taxonomy_term_load(key($result['taxonomy_term']));
       $term->name = $user['department_name'];
       os2intra_user_import_save_log('', 'Looping over existing term: ' . $term->name);
+      $term->parent = array($parent_tid);
+      if ($user['department'] != $user['centre']) {
+        // Search for parent tid for department
+        $result = os2intra_user_import_query_term_by_department($user['centre']);
 
-      // Search for parent tid for department
-      $result = os2intra_user_import_query_term_by_department($user['centre']);
+        if (!empty($result)) {
+          $parent_term = taxonomy_term_load(key($result['taxonomy_term']));
+          $parent_tid = $parent_term->tid;
 
-      if (!empty($result)) {
-        $parent_term = taxonomy_term_load(key($result['taxonomy_term']));
-        $parent_tid = $parent_term->tid;
-
-        if ($parent_term->tid != $term->tid) {
+          if ($parent_term->tid != $term->tid) {
+            $term->parent = array($parent_tid);
+          }
+        }
+        else {
+          $parent_term = new stdClass();
+          $parent_term->name = $user['centre_name'];
+          $parent_term->parent = array($parent_tid);
+          $parent_term->field_os2intra_department_id[LANGUAGE_NONE][0]['value'] = $user['centre'];
+          $parent_term->vid = $vocab->vid;
+          if($tid = os2intra_user_import_get_parent_term_from_dn($user['dn'], $user['centre_name'], 'os2intra_organisation_tax')) {
+            $parent_term->parent = array($tid);
+          }
+          taxonomy_term_save($parent_term);
+          $parent_tid = $parent_term->tid;
           $term->parent = array($parent_tid);
+          os2intra_user_import_create_department($parent_term->tid, $user['centre'], $user['centre_name'] );
         }
-      }
-      else {
-        $parent_term = new stdClass();
-        $parent_term->name = $user['centre_name'];
-        $parent_term->parent = array($parent_tid);
-        $parent_term->field_os2intra_department_id[LANGUAGE_NONE][0]['value'] = $user['centre'];
-        $parent_term->vid = $vocab->vid;
-        if($tid = os2intra_user_import_get_parent_term_from_dn($user['dn'], $user['centre_name'], 'os2intra_organisation_tax')) {
-          $parent_term->parent = array($tid);
-        }
-        taxonomy_term_save($parent_term);
-        $parent_tid = $parent_term->tid;
-        $term->parent = array($parent_tid);
-        os2intra_user_import_create_department($parent_term->tid, $user['centre'], $user['centre_name'] );
       }
       taxonomy_term_save($term);
       os2intra_user_import_create_department($term->tid, $user['department'], $user['department_name']);
@@ -79,27 +81,30 @@ function os2intra_user_import_groups($users) {
       // Create taxonomy terms
       os2intra_user_import_save_log('', 'Create department: ' . $group);
 
-      // Search for parent tid for department
-      $result = os2intra_user_import_query_term_by_department($user['centre']);
 
-      if (!empty($result)) {
-        $parent_term = taxonomy_term_load(key($result['taxonomy_term']));
-        $parent_tid = $parent_term->tid;
-      }
-      else {
-        $parent_term = new stdClass();
-        $parent_term->name = $user['centre_name'];
-        $parent_term->parent = array($parent_tid);
-        $parent_term->field_os2intra_department_id[LANGUAGE_NONE][0]['value'] = $user['centre'];
-        $parent_term->vid = $vocab->vid;
-        if (isset($user['dn'])) {
-          if($tid = os2intra_user_import_get_parent_term_from_dn($user['dn'], $user['centre_name'], 'os2intra_organisation_tax')) {
-            $parent_term->parent = array($tid);
-          }
+      if ($user['department'] != $user['centre']) {
+        // Search for parent tid for department
+        $result = os2intra_user_import_query_term_by_department($user['centre']);
+
+        if (!empty($result)) {
+          $parent_term = taxonomy_term_load(key($result['taxonomy_term']));
+          $parent_tid = $parent_term->tid;
         }
-        taxonomy_term_save($parent_term);
-        $parent_tid = $parent_term->tid;
-        os2intra_user_import_create_department($parent_term->tid, $user['centre'], $user['centre_name']);
+        else {
+          $parent_term = new stdClass();
+          $parent_term->name = $user['centre_name'];
+          $parent_term->parent = array($parent_tid);
+          $parent_term->field_os2intra_department_id[LANGUAGE_NONE][0]['value'] = $user['centre'];
+          $parent_term->vid = $vocab->vid;
+          if (isset($user['dn'])) {
+            if($tid = os2intra_user_import_get_parent_term_from_dn($user['dn'], $user['centre_name'], 'os2intra_organisation_tax')) {
+              $parent_term->parent = array($tid);
+            }
+          }
+          taxonomy_term_save($parent_term);
+          $parent_tid = $parent_term->tid;
+          os2intra_user_import_create_department($parent_term->tid, $user['centre'], $user['centre_name']);
+        }
       }
 
       $term = new stdClass();
