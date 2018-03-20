@@ -396,7 +396,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     // Set department membership and role
     $values = array(
       'entity' => $account,
-      'field_name' => variable_get('os2intra_user_organisation_field')
+      'field_name' => variable_get('os2intra_user_primary_og_role_reference_field')
     );
     og_group('node', $department_nid, $values);
     og_role_grant('node', $department_nid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
@@ -422,10 +422,9 @@ function os2intra_user_import_save_user($user, $uid = '') {
   if (!user_get_authmaps($authmap)) {
     user_set_authmaps($account, $authmap);
   }
-
   // Add users to parent departments
   if (variable_get('os2intra_add_users_to_parent_departments') && $department_nid) {
-    os2intra_user_import_add_user_to_parent_departments($account);
+    os2intra_user_import_add_user_to_parent_departments($account, $department_nid);
   }
 
   // Write log entry

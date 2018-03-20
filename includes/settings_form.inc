@@ -122,7 +122,7 @@ $csv_cols_fallback_1 = array(
     '#description'   => t('ID of the group role to grant the user, when added to parent groups.'),
   );
 
-  $form['os2intra_user_import_og_role_id_user'] = array(
+  $form['os2intra_user_import_og_role_id_primary'] = array(
     '#title'         => t('Primary OG Role Grant ID'),
     '#type'          => 'textfield',
     '#default_value' => variable_get('os2intra_user_import_og_role_id_primary', 16),
@@ -251,6 +251,20 @@ $csv_cols_fallback_1 = array(
     '#required'      => TRUE,
     '#options'       => $user_type_fields_select,
     '#default_value' => variable_get('os2intra_user_department_field')
+  );
+  $form['os2intra_structure_settings']['os2intra_user_primary_og_role_reference_field'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Primary OG Role reference_field'),
+    '#required'      => TRUE,
+    '#options'       => $user_type_fields_select,
+    '#default_value' => variable_get('os2intra_user_primary_og_role_reference_field')
+  );
+  $form['os2intra_structure_settings']['os2intra_user_parent_og_role_reference_field'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Parent OG Role reference field'),
+    '#required'      => TRUE,
+    '#options'       => $user_type_fields_select,
+    '#default_value' => variable_get('os2intra_user_parent_og_role_reference_field')
   );
   $form['os2intra_structure_settings']['os2intra_user_import_birthday_field'] = array(
     '#type'          => 'select',
