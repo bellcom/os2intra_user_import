@@ -172,7 +172,7 @@ function os2intra_user_import_create_department($tid, $department, $department_n
   $node->{$group_organisation_field}[LANGUAGE_NONE][][$group_organisation_reference] = $tid;
 
   // Save department id on node
-  if (field_info_instance('taxonomy_term', 'field_os2intra_department_id', variable_get('os2intra_groups_node_type'))) {
+  if (field_info_instance('node', 'field_os2intra_department_id', variable_get('os2intra_groups_node_type'))) {
     $node->field_os2intra_department_id[LANGUAGE_NONE][0]['value'] = $department;
   }
 
@@ -225,6 +225,9 @@ function os2intra_user_import_add_user_to_parent_departments($account, $departme
     $query->entityCondition('entity_type', 'node');
     $query->entityCondition('bundle', variable_get('os2intra_groups_node_type'));
     $query->fieldCondition($group_organisation_field, $group_organisation_reference, $parent_tids, 'IN');
+    if (field_info_instance('node', 'field_os2intra_department_id', variable_get('os2intra_groups_node_type'))) {
+      $query->fieldCondition('field_os2intra_department_id', 'value', 'NULL', '!=');
+    }
     $results = $query->execute();
 
     if (isset($results['node'])) {
