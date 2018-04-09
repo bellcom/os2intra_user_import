@@ -149,6 +149,7 @@ $csv_cols_fallback_1 = array(
     '#default_value' => variable_get('os2intra_user_import_user_disable_action', 'user_disable'),
   );
 
+  // Settings for data structure compatibility in different installations.
   $form['os2intra_structure_settings'] = array(
     '#type'          => 'fieldset',
     '#title'         => t('Structure settings'),
@@ -162,17 +163,20 @@ $csv_cols_fallback_1 = array(
     $available_vocabularies[$vocabulary->vid] = $vocabulary->name;
   }
   asort($available_vocabularies);
+  // Variable which contains organization vocabulary ID.
   $form['os2intra_structure_settings']['os2intra_groups_vocabulary_vid'] = array(
     '#type'          => 'select',
     '#title'         => t('Groups vocabulary name'),
+    '#description'   => t('Taxonomy vocabulary which contains organisation terms'),
     '#required'      => TRUE,
     '#options'       => $available_vocabularies,
     '#default_value' => variable_get('os2intra_groups_vocabulary_vid')
   );
-
+  // Variable which contains user's job titles vocabulary ID.
   $form['os2intra_structure_settings']['os2intra_job_title_vocabulary_vid'] = array(
     '#type'          => 'select',
     '#title'         => t('Job title vocabulary name'),
+    '#description'   => t('Taxonomy vocabulary which contains job titles'),
     '#required'      => TRUE,
     '#options'       => $available_vocabularies,
     '#default_value' => variable_get('os2intra_job_title_vocabulary_vid')
@@ -184,9 +188,11 @@ $csv_cols_fallback_1 = array(
     $available_node_types[$node_type->type] = $node_type->name;
   }
   asort($available_node_types);
+  // Variable which contains  content type what used for groups.
   $form['os2intra_structure_settings']['os2intra_groups_node_type'] = array(
     '#type'          => 'select',
     '#title'         => t('Groups node type'),
+    '#description'   => t('Content type which used for organizations'),
     '#required'      => TRUE,
     '#options'       => $available_node_types,
     '#default_value' => variable_get('os2intra_groups_node_type')
@@ -198,23 +204,29 @@ $csv_cols_fallback_1 = array(
     foreach ($group_type_fields as $field_name => $value) {
       $group_type_fields_select[$field_name] = $field_name;
     }
+    // Variable which contains content type what used for groups.
     $form['os2intra_structure_settings']['os2intra_groups_organisation_connection_field'] = array(
       '#type'          => 'select',
       '#title'         => t('Groups -> organisation connection field'),
+      '#description'   => t('Field name in organization group node which is used for connecting with organization taxonomy'),
       '#required'      => TRUE,
       '#options'       => $group_type_fields_select,
       '#default_value' => variable_get('os2intra_groups_organisation_connection_field')
     );
+    // Variable which contains type of reference which used for connection between group node and organization taxonomy.
     $form['os2intra_structure_settings']['os2intra_groups_organisation_connection_reference'] = array(
       '#type'          => 'select',
       '#title'         => t('Groups -> organisation connection reference type'),
+      '#description'   => t('Reference type to organization taxonomy in organization group node (Term Reference or Entity Reference)'),
       '#required'      => TRUE,
       '#options'       => array('target_id' => 'target_id', 'tid' => 'tid'),
       '#default_value' => variable_get('os2intra_groups_organisation_connection_reference')
     );
+    // Variable which contains the name of field  in group node which used as group title.
     $form['os2intra_structure_settings']['os2intra_user_import_group_department_title_field'] = array(
       '#type'          => 'select',
       '#title'         => t('Groups department title field'),
+      '#description'   => t('The name of field in organization node which is used as organization title'),
       '#required'      => TRUE,
       '#options'       => $group_type_fields_select,
       '#default_value' => variable_get('os2intra_user_import_group_department_title_field')
@@ -230,94 +242,111 @@ $csv_cols_fallback_1 = array(
   foreach ($user_type_fields as $field_name => $value) {
     $user_type_fields_select[$field_name] = $field_name;
   }
+  // Variable which contains the name of user profile field  which used for save references to user's groups.
   $form['os2intra_structure_settings']['os2intra_user_group_field'] = array(
     '#type'          => 'select',
     '#title'         => t('User group reference field'),
+    '#description'   => t('The name of field in the user profile which contains references to user\'s groups nodes'),
     '#required'      => TRUE,
     '#options'       => $user_type_fields_select,
     '#default_value' => variable_get('os2intra_user_group_field')
   );
-  
-    $form['os2intra_structure_settings']['os2intra_user_organisation_field'] = array(
+  // Variable which contains the name of user profile field  which used for save references to all user's organizations(departments).
+  $form['os2intra_structure_settings']['os2intra_user_organisation_field'] = array(
     '#type'          => 'select',
     '#title'         => t('User organisation reference field'),
+    '#description'   => t('The name of field in the user profile which contains references to user\'s organisations nodes'),
     '#required'      => TRUE,
     '#options'       => array_merge(array('none' => t('None')), $user_type_fields_select),
     '#default_value' => variable_get('os2intra_user_organisation_field')
   );
+  // Variable which contains the name of user profile field  which used for save reference to own user's organization(department).
   $form['os2intra_structure_settings']['os2intra_user_department_field'] = array(
     '#type'          => 'select',
     '#title'         => t('User department reference field'),
+    '#description'   => t('The name of field in user profile which contains reference to user\'s own department'),
     '#required'      => TRUE,
     '#options'       => $user_type_fields_select,
     '#default_value' => variable_get('os2intra_user_department_field')
   );
+  // Variable which contains the name of user profile field  the membership  with "Primary OG Role" should be registered in.
   $form['os2intra_structure_settings']['os2intra_user_primary_og_role_reference_field'] = array(
     '#type'          => 'select',
     '#title'         => t('Primary OG Role reference_field'),
+    '#description'   => t('The name of the field, the membership  with "Primary OG Role" should be registered in'),
     '#required'      => TRUE,
     '#options'       => $user_type_fields_select,
     '#default_value' => variable_get('os2intra_user_primary_og_role_reference_field')
   );
+  // Variable which contains the name of user profile field the membership  with "Parent OG Role" should be registered in.
   $form['os2intra_structure_settings']['os2intra_user_parent_og_role_reference_field'] = array(
     '#type'          => 'select',
     '#title'         => t('Parent OG Role reference field'),
+    '#description'   => t('The name of the field, the membership  with "Parent OG Role" should be registered in'),
     '#required'      => TRUE,
     '#options'       => $user_type_fields_select,
     '#default_value' => variable_get('os2intra_user_parent_og_role_reference_field')
   );
+  // Variable which contains the name of user profile field which contains user\'s birthday.
   $form['os2intra_structure_settings']['os2intra_user_import_birthday_field'] = array(
     '#type'          => 'select',
     '#title'         => t('User birthday field'),
+    '#description'   => t('Field in user profile which contains user\'s birthday'),
     '#required'      => TRUE,
     '#options'       => $user_type_fields_select,
     '#default_value' => variable_get('os2intra_user_import_birthday_field')
   );
-
+  // Variable which contains settings to determinate if user should be added  as members to parent departmnets.
   $form['os2intra_structure_settings']['os2intra_add_users_to_parent_departments'] = array(
     '#type'          => 'checkbox',
+    '#description'   => t('If checked, users will be added as member into parent departments with "Parent OG Role"'),
     '#title'         => t('Add users to parent departments'),
     '#default_value' => variable_get('os2intra_add_users_to_parent_departments')
   );
-
+  // Variable which contains settings to determinate if user should be added  as manager to parent departmnets.
   $form['os2intra_structure_settings']['os2intra_add_managers_to_departments'] = array(
     '#type'          => 'checkbox',
+    '#description'   => t('If checked, user will be added as manager to parents departments'),
     '#title'         => t('Add managers to departments'),
     '#default_value' => variable_get('os2intra_add_managers_to_departments')
   );
+  // Variable which contains settings to determinate if old references to user's departments should saved during import.
   $form['os2intra_structure_settings']['os2intra_save_old_departments'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Save old departments references during import'),
     '#description'   => t('If unchecked only current department reference will be saved for user'),
     '#default_value' => variable_get('os2intra_save_old_departments')
   );
+  // Variable which contains settings to determinate if old user memberships should saved during import.
   $form['os2intra_structure_settings']['os2intra_revoke_og_roles'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Save old departments memberships'),
-    '#description'   => t('If unchecked only membership in current department will be added'),
+    '#description'   => t('If checked only membership from current import will be added'),
     '#default_value' => variable_get('os2intra_revoke_og_roles')
   );
+  // Variable which contains settings to determinate how username should be generated.
   $form['os2intra_structure_settings']['os2intra_generate_username'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Generate unique user name from "user full name + department name" when AD id is not present'),
     '#default_value' => variable_get('os2intra_generate_username')
   );
-
+  // Variable which contains birthday format.
   $form['os2intra_structure_settings']['os2intra_user_import_birthdate_db_format'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Birthdate expected format (to write into database)'),
     '#default_value' => variable_get('os2intra_user_import_birthdate_db_format'),
     '#description'   => t('Date format. See possible values in the <a href="http://php.net/manual/en/function.date.php" target="_blank">PHP manual</a>.')
   );
-
+  // Variable which contains type of reference which used for connection between user profile and job title taxonomy.
   $form['os2intra_structure_settings']['os2intra_user_import_job_title_connection_reference'] = array(
     '#type'          => 'select',
     '#title'         => t('Users -> job title connection reference type'),
+    '#description'   => t('Reference type to job taxonomy in user profie(Term Reference or Entity Reference)'),
     '#required'      => TRUE,
     '#options'       => array('target_id' => 'target_id', 'tid' => 'tid'),
     '#default_value' => variable_get('os2intra_user_import_job_title_connection_reference')
   );
-
+  // Mapping settings
   $form['os2intra_mapping'] = array(
     '#type'          => 'fieldset',
     '#title'         => t('Mapping'),
