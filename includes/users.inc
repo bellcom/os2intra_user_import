@@ -367,6 +367,18 @@ function os2intra_user_import_save_user($user, $uid = '') {
     // At this step even if the ad_id was empty initially it must have been generated
     $fields['name'] = $user['ad_id'];
     $fields['pass'] = $password;
+
+    // Before create check if user has correct name.
+    if (empty($fields['name'])) {
+      os2intra_user_import_save_log($user['employee_id'], 'Cannot add user with empty name/AD_id. Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
+      return;
+    }
+
+    // Before create check if user with this name already exist.
+    if (!empty(user_load($fields['name']))) {
+      os2intra_user_import_save_log($user['employee_id'], 'User with name/AD_id already exists Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
+      return;
+    }
   }
 
 
