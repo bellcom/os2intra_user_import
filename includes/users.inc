@@ -68,7 +68,7 @@ function os2intra_user_import_check_users(&$users, $duplicate_emails, $duplicate
 
     $result = NULL;
 
-    $identification_method = variable_get('os2intra_user_import_activate_identification');
+    $identification_method = variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION);
     if ($identification_method == 'ad_id') {
       $query = new EntityFieldQuery;
       $query->entityCondition('entity_type', 'user');
