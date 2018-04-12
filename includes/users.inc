@@ -375,7 +375,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     }
 
     // Before create check if user with this name already exist.
-    if (!empty(user_load($fields['name']))) {
+    if (!empty(user_load_by_name($fields['name']))) {
       os2intra_user_import_save_log($user['employee_id'], 'User with name/AD_id already exists Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
       return;
     }
