@@ -19,6 +19,10 @@ module_load_include('inc', 'os2intra_user_import', 'includes/settings_form');
 module_load_include('inc', 'os2intra_user_import', 'includes/users');
 module_load_include('inc', 'os2intra_user_import', 'includes/utilities');
 
+// User activation default variable.
+define('OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION', 'employee_id');
+define('OS2INTRA_USER_IMPORT_ACTIVATE_BIRTHDAY', TRUE);
+define('OS2INTRA_USER_IMPORT_ACTIVATE_EMAIL', TRUE);
 /**
  * Implements hook_menu()
  */
@@ -107,7 +111,9 @@ function os2intra_user_import_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 
-  // Settings form
+  // Settings form.
+  // @TODO These settings should be available to change in scope of
+  // os2intra_user_import module.
   if ($form_id == 'os2intra_settings_settings_form') {
 
     $form['os2intra_user_import_activate'] = array(
@@ -128,24 +134,24 @@ function os2intra_user_import_form_alter(&$form, &$form_state, $form_id) {
         'ad_id' => t('AD id'),
         'employee_id' => ('Employee number'),
       ),
-      '#default_value' => variable_get('os2intra_user_import_activate_identification', 'employee_id'),
+      '#default_value' => variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION),
     );
 
     $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_birthday'] = array(
       '#title' => t('Birthday'),
       '#type' => 'checkbox',
-      '#default_value' => variable_get('os2intra_user_import_activate_birthday', TRUE),
+      '#default_value' => variable_get('os2intra_user_import_activate_birthday', OS2INTRA_USER_IMPORT_ACTIVATE_BIRTHDAY),
     );
 
     $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_email'] = array(
       '#title' => t('Email address'),
       '#type' => 'checkbox',
-      '#default_value' => variable_get('os2intra_user_import_activate_email', TRUE),
+      '#default_value' => variable_get('os2intra_user_import_activate_email', OS2INTRA_USER_IMPORT_ACTIVATE_EMAIL),
     );
   }
 
   if ($form_id == 'user_login') {
-    // Add link for user activation to login form
+    // Add link for user activation to login form.
     $form['activate_user'] = array(
       '#type'   => 'item',
       '#markup' => l(t('Activate user'), 'useractivation'),

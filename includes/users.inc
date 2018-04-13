@@ -68,7 +68,7 @@ function os2intra_user_import_check_users(&$users, $duplicate_emails, $duplicate
 
     $result = NULL;
 
-    $identification_method = variable_get('os2intra_user_import_activate_identification');
+    $identification_method = variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION);
     if ($identification_method == 'ad_id') {
       $query = new EntityFieldQuery;
       $query->entityCondition('entity_type', 'user');
@@ -367,6 +367,18 @@ function os2intra_user_import_save_user($user, $uid = '') {
     // At this step even if the ad_id was empty initially it must have been generated
     $fields['name'] = $user['ad_id'];
     $fields['pass'] = $password;
+
+    // Before create check if user has correct name.
+    if (empty($fields['name'])) {
+      os2intra_user_import_save_log($user['employee_id'], 'Cannot add user with empty name/AD_id. Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
+      return;
+    }
+
+    // Before create check if user with this name already exist.
+    if (!empty(user_load_by_name($fields['name']))) {
+      os2intra_user_import_save_log($user['employee_id'], 'User with name/AD_id already exists Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
+      return;
+    }
   }
 
 
@@ -396,7 +408,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     // Set department membership and role
     $values = array(
       'entity' => $account,
-      'field_name' => variable_get('os2intra_user_organisation_field')
+      'field_name' => variable_get('os2intra_user_primary_og_role_reference_field')
     );
     og_group('node', $department_nid, $values);
     og_role_grant('node', $department_nid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
@@ -422,10 +434,9 @@ function os2intra_user_import_save_user($user, $uid = '') {
   if (!user_get_authmaps($authmap)) {
     user_set_authmaps($account, $authmap);
   }
-
   // Add users to parent departments
   if (variable_get('os2intra_add_users_to_parent_departments') && $department_nid) {
-    os2intra_user_import_add_user_to_parent_departments($account);
+    os2intra_user_import_add_user_to_parent_departments($account, $department_nid);
   }
 
   // Write log entry

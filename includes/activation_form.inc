@@ -3,7 +3,7 @@
  * User activation form
  */
 function os2intra_user_import_activate_form($form_state) {
-  switch (variable_get('os2intra_user_import_activate_identification')) {
+  switch (variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION)) {
     case 'ad_id':
       $form['ad_id'] = array(
         '#type'  => 'textfield',
@@ -19,14 +19,14 @@ function os2intra_user_import_activate_form($form_state) {
       break;
   }
 
-  if (variable_get('os2intra_user_import_activate_email')) {
+  if (variable_get('os2intra_user_import_activate_email', OS2INTRA_USER_IMPORT_ACTIVATE_EMAIL)) {
     $form['mail'] = array(
       '#type'  => 'textfield',
       '#title' => t('E-mail adress'),
     );
   }
 
-  if (variable_get('os2intra_user_import_activate_birthday')) {
+  if (variable_get('os2intra_user_import_activate_birthday', OS2INTRA_USER_IMPORT_ACTIVATE_BIRTHDAY)) {
     $form['birthdate'] = array(
       '#type'        => 'textfield',
       '#title'       => t('Birthdate'),
