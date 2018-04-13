@@ -149,6 +149,40 @@ $csv_cols_fallback_1 = array(
     '#default_value' => variable_get('os2intra_user_import_user_disable_action', 'user_disable'),
   );
 
+  // User activation settings, see includes/activation_form.inc
+  $form['os2intra_user_import_activate'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User activation'),
+    '#collapsible' => TRUE,
+  );
+
+  $form['os2intra_user_import_activate']['activation_fields'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Validate first login by'),
+  );
+
+  $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_identification'] = array(
+    '#title' => t('User identification'),
+    '#type' => 'select',
+    '#options' => array(
+      'ad_id' => t('AD id'),
+      'employee_id' => ('Employee number'),
+    ),
+    '#default_value' => variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION),
+  );
+
+  $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_birthday'] = array(
+    '#title' => t('Birthday'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('os2intra_user_import_activate_birthday', OS2INTRA_USER_IMPORT_ACTIVATE_BIRTHDAY),
+  );
+
+  $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_email'] = array(
+    '#title' => t('Email address'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('os2intra_user_import_activate_email', OS2INTRA_USER_IMPORT_ACTIVATE_EMAIL),
+  );
+
   // Settings for data structure compatibility in different installations.
   $form['os2intra_structure_settings'] = array(
     '#type'          => 'fieldset',
