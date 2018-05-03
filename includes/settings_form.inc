@@ -154,6 +154,7 @@ $csv_cols_fallback_1 = array(
     '#type' => 'fieldset',
     '#title' => t('User activation'),
     '#collapsible' => TRUE,
+    '#weight' => -100,
   );
 
   $form['os2intra_user_import_activate']['activation_fields'] = array(
@@ -164,7 +165,9 @@ $csv_cols_fallback_1 = array(
   $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_identification'] = array(
     '#title' => t('User identification'),
     '#type' => 'select',
+    '#required' => TRUE,
     '#options' => array(
+      '' => t('None'),
       'ad_id' => t('AD id'),
       'employee_id' => ('Employee number'),
     ),

@@ -20,7 +20,7 @@ module_load_include('inc', 'os2intra_user_import', 'includes/users');
 module_load_include('inc', 'os2intra_user_import', 'includes/utilities');
 
 // User activation default variable.
-define('OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION', 'employee_id');
+define('OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION', NULL);
 define('OS2INTRA_USER_IMPORT_ACTIVATE_BIRTHDAY', TRUE);
 define('OS2INTRA_USER_IMPORT_ACTIVATE_EMAIL', TRUE);
 /**
@@ -128,9 +128,13 @@ function os2intra_user_import_overview() {
 }
 
 /**
- * User import wrapper function
+ * User import wrapper function.
  */
 function os2intra_user_import_run_with_drush() {
+  if (empty(variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION))) {
+    drupal_set_message('User activation mode is not setup. Please check user import configuration /admin/config/os2intra/user_import/settings', 'error');
+  }
+
   if (variable_get('os2intra_user_import_enable', FALSE)) {
     $current_timestamp = &drupal_static('os2intra_user_import_current_timestamp');
     $current_timestamp = time();
