@@ -362,25 +362,30 @@ function os2intra_user_import_save_user($user, $uid = '') {
   // Handle whether we're updating or creating a new user
   // if we're updating we don't generate username and sets password
   if (!is_numeric($uid)) {
-    $password = user_password(8);
 
-    // At this step even if the ad_id was empty initially it must have been generated
+    // By default user name comes from ad_id.
     $fields['name'] = $user['ad_id'];
+
+    // For empty ad_id generate username.
+    if (empty($user['ad_id'])) {
+      $fields['name'] = os2intra_user_import_generate_username($user);
+    }
+
+    $password = user_password(8);
     $fields['pass'] = $password;
 
     // Before create check if user has correct name.
     if (empty($fields['name'])) {
-      os2intra_user_import_save_log($user['employee_id'], 'Cannot add user with empty name/AD_id. Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
+      os2intra_user_import_save_log($user['employee_id'], 'Cannot add user with empty name. Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
       return;
     }
 
     // Before create check if user with this name already exist.
     if (!empty(user_load_by_name($fields['name']))) {
-      os2intra_user_import_save_log($user['employee_id'], 'User with name/AD_id already exists Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
+      os2intra_user_import_save_log($user['employee_id'], 'User with name already exists Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
       return;
     }
   }
-
 
   // Set Opus Roles
   if (field_info_instance('user', 'os2intra_users_opus_roles', 'user')) {
@@ -431,7 +436,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     );
   }
 
-  if (!user_get_authmaps($authmap)) {
+  if (!empty($authmap) && !user_get_authmaps($authmap)) {
     user_set_authmaps($account, $authmap);
   }
   // Add users to parent departments

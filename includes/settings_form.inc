@@ -361,12 +361,6 @@ $csv_cols_fallback_1 = array(
     '#description'   => t('If checked only membership from current import will be added'),
     '#default_value' => variable_get('os2intra_revoke_og_roles')
   );
-  // Variable which contains settings to determinate how username should be generated.
-  $form['os2intra_structure_settings']['os2intra_generate_username'] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('Generate unique user name from "user full name + department name" when AD id is not present'),
-    '#default_value' => variable_get('os2intra_generate_username')
-  );
   // Variable which contains birthday format.
   $form['os2intra_structure_settings']['os2intra_user_import_birthdate_db_format'] = array(
     '#type'          => 'textfield',

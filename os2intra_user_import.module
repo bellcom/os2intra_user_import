@@ -132,7 +132,9 @@ function os2intra_user_import_overview() {
  */
 function os2intra_user_import_run_with_drush() {
   if (empty(variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION))) {
-    drupal_set_message('User activation mode is not setup. Please check user import configuration /admin/config/os2intra/user_import/settings', 'error');
+    $message = 'User activation mode is not setup. Please check user import configuration /admin/config/os2intra/user_import/settings';
+    os2intra_user_import_save_log('', $message);
+    drupal_set_message($message, 'error');
   }
 
   if (variable_get('os2intra_user_import_enable', FALSE)) {
@@ -207,9 +209,9 @@ function os2intra_user_import_run_with_drush() {
         }
 
         $dup_id = array();
-        $user_id = array_column($users, 'ad_id');
-        if (!empty($user_id) && count($users) !== count(array_unique($user_id))) {
-          $dup_id = array_unique(array_diff_assoc($user_id, array_unique($user_id)));
+        $ad_id = array_column($users, 'ad_id');
+        if (!empty($ad_id) && count($users) !== count(array_unique($ad_id))) {
+          $dup_id = array_unique(array_diff_assoc($ad_id, array_unique($ad_id)));
           os2intra_user_import_save_log('', 'Duplicate User AD id found in import file: '. implode(', ', $dup_id));
         }
 
