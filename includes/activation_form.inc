@@ -103,8 +103,8 @@ function os2intra_user_import_activate_form_validate($form, &$form_state) {
         }
 
         // Check if it matches the users birthday field
-        $birthday_field = field_get_items('user', $user, 'field_os2intra_birthdate');
-        if ($input_birthday !== $birthday_field[0]['value']) {
+        $birthday_field = field_get_items('user', $user, 'field_os2intra_birthday');
+        if ($input_birthday !== date("dmy", strtotime($birthday_field[0]['value']))) {
           form_set_error('form', 'Please check your input.');
         }
       }

@@ -49,21 +49,57 @@ function os2intra_user_import_disable_users() {
 }
 
 /**
- * Check if the user is already created in the system
+ * Check if the user is already created in the system.
  */
-function os2intra_user_import_check_users(&$users, $duplicate_emails, $duplicate_ids) {
+function os2intra_user_import_check_users(&$users) {
   $update_users = array();
+
+  // Check duplicated emails. Drupal users should have unique email.
+  $dup_emails = array();
+  $user_email = array_column($users, 'email');
+  if (!empty($user_email) && count($users) !== count(array_unique($user_email))) {
+    $dup_emails = array_unique(array_diff_assoc($user_email, array_unique($user_email)));
+    os2intra_user_import_save_log('', 'Duplicate email found in import file: ' . implode(', ', $dup_emails));
+  }
+
+  // Check duplicated AD id. AD id values should be unique.
+  $ad_id = array_column($users, 'ad_id');
+  $dup_id = array();
+  if (!empty($ad_id) && count($users) !== count(array_unique($ad_id))) {
+    $dup_id = array_unique(array_diff_assoc($ad_id, array_unique($ad_id)));
+    os2intra_user_import_save_log('', 'Duplicate User AD id found in import file: ' . implode(', ', $dup_id));
+  }
+
+  $identification_method = variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION);
+  // For employee_id activation mode employee_id values should be unique.
+  if ($identification_method == 'employee_id') {
+    $employee_id = array_column($users, 'employee_id');
+    $dup_em_id = array();
+    if (!empty($employee_id) && count($users) !== count(array_unique($employee_id))) {
+      $dup_em_id = array_unique(array_diff_assoc($employee_id, array_unique($employee_id)));
+      os2intra_user_import_save_log('', 'Duplicate employee id found in import file: ' . implode(', ', $dup_em_id));
+    }
+  }
+
   foreach ($users as $key => $user) {
-    if (array_search($user['email'], $duplicate_emails) !== false) {
+    if (array_search($user['email'], $dup_emails) !== FALSE) {
       os2intra_user_import_save_log('', 'Duplicate email found: Skip user ' . $user['email']);
       unset($users[$key]);
       continue;
     }
 
-    if (array_search($user['ad_id'], $duplicate_ids) !== false) {
+    if (array_search($user['ad_id'], $dup_id) !== FALSE) {
       unset($users[$key]);
       os2intra_user_import_save_log('', 'Duplicate user AD found: Skip user ' . $user['ad_id']);
       continue;
+    }
+
+    if ($identification_method == 'employee_id') {
+      if (array_search($user['employee_id'], $dup_em_id) !== FALSE) {
+        unset($users[$key]);
+        os2intra_user_import_save_log('', 'Duplicate user employee id found: Skip user ' . $user['employee_id']);
+        continue;
+      }
     }
 
     $result = NULL;
@@ -401,25 +437,30 @@ function os2intra_user_import_save_user($user, $uid = '') {
   // Handle whether we're updating or creating a new user
   // if we're updating we don't generate username and sets password
   if (!is_numeric($uid)) {
-    $password = user_password(8);
 
-    // At this step even if the ad_id was empty initially it must have been generated
+    // By default user name comes from ad_id.
     $fields['name'] = $user['ad_id'];
+
+    // For empty ad_id generate username.
+    if (empty($user['ad_id'])) {
+      $fields['name'] = os2intra_user_import_generate_username($user);
+    }
+
+    $password = user_password(8);
     $fields['pass'] = $password;
 
     // Before create check if user has correct name.
     if (empty($fields['name'])) {
-      os2intra_user_import_save_log($user['employee_id'], 'Cannot add user with empty name/AD_id. Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
+      os2intra_user_import_save_log($user['employee_id'], 'Cannot add user with empty name. Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
       return;
     }
 
     // Before create check if user with this name already exist.
     if (!empty(user_load_by_name($fields['name']))) {
-      os2intra_user_import_save_log($user['employee_id'], 'User with name/AD_id already exists Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
+      os2intra_user_import_save_log($user['employee_id'], 'User with name already exists Employee id: ' . $user['employee_id'] . ' Ad id: ' . $user['ad_id']);
       return;
     }
   }
-
 
   // Set Opus Roles
   if (field_info_instance('user', 'os2intra_users_opus_roles', 'user')) {
@@ -470,7 +511,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     );
   }
 
-  if (!user_get_authmaps($authmap)) {
+  if (!empty($authmap) && !user_get_authmaps($authmap)) {
     user_set_authmaps($account, $authmap);
   }
   // Add users to parent departments

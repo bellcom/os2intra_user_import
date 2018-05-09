@@ -20,7 +20,7 @@ module_load_include('inc', 'os2intra_user_import', 'includes/users');
 module_load_include('inc', 'os2intra_user_import', 'includes/utilities');
 
 // User activation default variable.
-define('OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION', 'employee_id');
+define('OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION', NULL);
 define('OS2INTRA_USER_IMPORT_ACTIVATE_BIRTHDAY', TRUE);
 define('OS2INTRA_USER_IMPORT_ACTIVATE_EMAIL', TRUE);
 /**
@@ -111,45 +111,6 @@ function os2intra_user_import_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 
-  // Settings form.
-  // @TODO These settings should be available to change in scope of
-  // os2intra_user_import module.
-  if ($form_id == 'os2intra_settings_settings_form') {
-
-    $form['os2intra_user_import_activate'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('User activation'),
-      '#collapsible' => TRUE,
-    );
-
-    $form['os2intra_user_import_activate']['activation_fields'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Validate first login by'),
-    );
-
-    $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_identification'] = array(
-      '#title' => t('User identification'),
-      '#type' => 'select',
-      '#options' => array(
-        'ad_id' => t('AD id'),
-        'employee_id' => ('Employee number'),
-      ),
-      '#default_value' => variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION),
-    );
-
-    $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_birthday'] = array(
-      '#title' => t('Birthday'),
-      '#type' => 'checkbox',
-      '#default_value' => variable_get('os2intra_user_import_activate_birthday', OS2INTRA_USER_IMPORT_ACTIVATE_BIRTHDAY),
-    );
-
-    $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_email'] = array(
-      '#title' => t('Email address'),
-      '#type' => 'checkbox',
-      '#default_value' => variable_get('os2intra_user_import_activate_email', OS2INTRA_USER_IMPORT_ACTIVATE_EMAIL),
-    );
-  }
-
   if ($form_id == 'user_login') {
     // Add link for user activation to login form.
     $form['activate_user'] = array(
@@ -167,9 +128,16 @@ function os2intra_user_import_overview() {
 }
 
 /**
- * User import wrapper function
+ * User import wrapper function.
  */
 function os2intra_user_import_run_with_drush() {
+  if (empty(variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION))) {
+    $message = 'User activation mode is not setup. Please check user import configuration /admin/config/os2intra/user_import/settings';
+    os2intra_user_import_save_log('', $message);
+    drupal_set_message($message, 'error');
+    return;
+  }
+
   if (variable_get('os2intra_user_import_enable', FALSE)) {
     $current_timestamp = &drupal_static('os2intra_user_import_current_timestamp');
     $current_timestamp = time();
@@ -233,24 +201,8 @@ function os2intra_user_import_run_with_drush() {
       if ($current_timestamp != $last_import_temp_users) {
         os2intra_user_import_save_log('', 'Starting User Loop');
 
-        // Checking for duplicates
-        $dup_emails = array();
-        $user_email = array_column($users, 'email');
-        if (!empty($user_email) && count($users) !== count(array_unique($user_email))) {
-          $dup_emails = array_unique(array_diff_assoc($user_email,array_unique($user_email)));
-          os2intra_user_import_save_log('', 'Duplicate email found in import file: '. implode(', ', $dup_emails));
-        }
-
-        $dup_id = array();
-        $user_id = array_column($users, 'ad_id');
-        if (!empty($user_id) && count($users) !== count(array_unique($user_id))) {
-          $dup_id = array_unique(array_diff_assoc($user_id, array_unique($user_id)));
-          os2intra_user_import_save_log('', 'Duplicate User AD id found in import file: '. implode(', ', $dup_id));
-        }
-
-
-        $update_users = os2intra_user_import_check_users($users, $dup_emails, $dup_id);
-        // Loop over users and create
+        $update_users = os2intra_user_import_check_users($users);
+        // Loop over users and create.
         os2intra_user_import_save_log('', 'Start Creating Users');
 
         foreach ($users as $user) {
