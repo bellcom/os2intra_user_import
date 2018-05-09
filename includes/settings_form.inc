@@ -231,6 +231,27 @@ $csv_cols_fallback_1 = array(
       '#options'       => $group_type_fields_select,
       '#default_value' => variable_get('os2intra_user_import_group_department_title_field')
     );
+
+    if (isset($group_type_fields['field_os2intra_grouptype'])) {
+      // For case when group has group type field we have to define
+      // Organizational term.
+      $vid = taxonomy_vocabulary_machine_name_load('os2intra_tax_group_type')->vid;
+      $options = array('' => 'None');
+      foreach (taxonomy_get_tree($vid) as $item) {
+        $key = $item->tid;
+        $value = $item->name;
+        $options[$key] = $value;
+      }
+      $form['os2intra_structure_settings']['os2intra_groups_organisation_tid'] = array(
+        '#type'          => 'select',
+        '#title'         => t('Organization term'),
+        '#description'   => t('Gruppe Type taxonomy term define groups as Organization'),
+        '#required'      => TRUE,
+        '#options'       => $options,
+        '#default_value' => variable_get('os2intra_groups_organisation_tid'),
+      );
+    }
+
   } else {
     $form['os2intra_structure_settings']['os2intra_groups_organisation_connection_field'] = array(
       '#markup' => t('Please select "Groups node type" and save the form before you can select "Groups -> organisation connection field"')
@@ -260,6 +281,7 @@ $csv_cols_fallback_1 = array(
     '#options'       => array_merge(array('none' => t('None')), $user_type_fields_select),
     '#default_value' => variable_get('os2intra_user_organisation_field')
   );
+
   // Variable which contains the name of user profile field  which used for save reference to own user's organization(department).
   $form['os2intra_structure_settings']['os2intra_user_department_field'] = array(
     '#type'          => 'select',

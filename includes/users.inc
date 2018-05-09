@@ -166,7 +166,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     // Attach new group.
     // We rebuild the association completely so we start with an empty
     // array.
-    $user_groups = array();
+    $user_groups = array(LANGUAGE_NONE => array());
     if (variable_get('os2intra_user_default_groups')) {
       $def_groups = explode(',', variable_get('os2intra_user_default_groups'));
       foreach ($def_groups as $def_group) {
@@ -298,7 +298,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     $current_timestamp = time();
   }
 
-  // Populate fields
+  // Populate static fields.
   $fields = array(
 
     // Set employee_id
@@ -319,15 +319,6 @@ function os2intra_user_import_save_user($user, $uid = '') {
     // Mobile
     'field_os2intra_mobile'            => array(LANGUAGE_NONE => array(0 => array('value' => (array_key_exists('mobile', $user)) ? $user['mobile'] : ''))),
 
-    // Set birthdate
-    variable_get('os2intra_user_import_birthday_field') => array(LANGUAGE_NONE => array(0 => array('value' => (array_key_exists('birthdate', $user)) ? $user['birthdate'] : NULL))),
-
-    //Set users nodes
-    variable_get('os2intra_user_group_field') => array(LANGUAGE_NONE => $og_user_node),
-
-    // Set department membership
-    variable_get('os2intra_user_organisation_field') => variable_get('os2intra_save_old_departments', false) ? $user_groups : array(LANGUAGE_NONE => array(0 => array('target_id' => $department_nid))),
-
     // Activate user
     'status'                          => ($account->uid != 0) ? $account->status : 1,
 
@@ -337,6 +328,54 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
     'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => $current_timestamp))),
   );
+
+  // Populate dynamic fields.
+  // Set birthdate.
+  $birthday_field = variable_get('os2intra_user_import_birthday_field');
+  if (!empty($birthday_field)) {
+    $fields[$birthday_field] = array(
+      LANGUAGE_NONE => array(
+        0 => array(
+          'value' => (array_key_exists('birthdate', $user)) ? $user['birthdate'] : NULL,
+        ),
+      ),
+    );
+  }
+
+  // Set users groups.
+  $group_field = variable_get('os2intra_user_group_field');
+  if (!empty($group_field)) {
+    $fields[$group_field] = array(LANGUAGE_NONE => $og_user_node);
+  }
+
+  // Set department membership.
+  $organisation_field = variable_get('os2intra_user_organisation_field');
+  if (!empty($organisation_field)) {
+    $organisational_groups = variable_get('os2intra_save_old_departments', FALSE) ? $user_groups : array(LANGUAGE_NONE => array(0 => array('target_id' => $department_nid)));
+    if ($organisation_field != $group_field) {
+      // Different field used for department membership.
+      $fields[$organisation_field] = $organisational_groups;
+    }
+    else {
+      // Merging field values when the same field used
+      // to store organizations and user groups references.
+      $groups = !empty($fields[$group_field][LANGUAGE_NONE]) ? $fields[$group_field][LANGUAGE_NONE] : array();
+      foreach ($organisational_groups[LANGUAGE_NONE] as $org_group) {
+        $exist = FALSE;
+        foreach ($groups as $group) {
+          $exist = $group['target_id'] == $org_group['target_id'];
+          if ($exist) {
+            break;
+          }
+        }
+        if (!$exist) {
+          $groups[] = $org_group;
+        }
+      }
+
+      $fields[$group_field][LANGUAGE_NONE] = $groups;
+    }
+  }
   
   if (isset($user['email'])) {
     $fields['mail'] = $user['email'];
