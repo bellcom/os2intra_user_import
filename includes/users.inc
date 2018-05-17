@@ -253,7 +253,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
   // This is only done in order to migrate user groups, from users before the
   // import groups field was added.
   if ($no_import_groups) {
-    $user_groups = array();
+    $user_groups = array(LANGUAGE_NONE => array());
   }
 
   // Add back the groups we want to keep.
