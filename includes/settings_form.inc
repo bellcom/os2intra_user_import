@@ -10,7 +10,8 @@ function os2intra_user_import_settings() {
     $realpath = '';
 
     $filename = variable_get('os2intra_user_import_file_name', 'FK-user_import');
-    $files = file_scan_directory($import_dir, '/' . $filename . '.csv/');
+    $files = file_scan_directory($import_dir, '/' . $filename . '.(csv|CSV)$/');
+
     $dir = reset($files);
     if ($dir) {
       $realpath = drupal_realpath($dir->uri);
