@@ -11,7 +11,6 @@ function os2intra_user_import_settings() {
 
     $filename = variable_get('os2intra_user_import_file_name', 'FK-user_import');
     $files = file_scan_directory($import_dir, '/' . $filename . '.(csv|CSV)$/');
-
     $dir = reset($files);
     if ($dir) {
       $realpath = drupal_realpath($dir->uri);
@@ -111,8 +110,9 @@ $csv_cols_fallback_1 = array(
   );
 
   $form['os2intra_user_notification_email'] = array(
-    '#title'         => t('Email address that should be notified when new departments are created'),
+    '#title'         => t('Email addresses that should be notified when new departments are created'),
     '#type'          => 'textfield',
+    '#description'   => t('Comma-separeted list of emails'),
     '#default_value' => variable_get('os2intra_user_notification_email', variable_get('site_mail')),
   );
 
