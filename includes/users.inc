@@ -493,10 +493,10 @@ function os2intra_user_import_save_user($user, $uid = '') {
    // Set Har AD field
   if (field_info_instance('user', 'field_user_in_ad', 'user') && array_key_exists('has_ad', $user)) {
     if ($user['has_ad'] == 'J') {
-      $fields['field_user_in_ad'][0]['value'] = 1;
+      $fields['field_user_in_ad'][LANGUAGE_NONE][0]['value'] = "1";
     }
     else {
-      $fields['field_user_in_ad'][0]['value'] = 0;
+      $fields['field_user_in_ad'][LANGUAGE_NONE][0]['value'] = "0";
     }
   }
 
