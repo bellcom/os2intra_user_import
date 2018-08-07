@@ -355,6 +355,33 @@ $csv_cols_fallback_1 = array(
     '#options'       => $user_type_fields_select,
     '#default_value' => variable_get('os2intra_user_import_birthday_field')
   );
+  // Variable which contains the name of user profile field which contains user\'s job title fields.
+  $form['os2intra_structure_settings']['os2intra_user_import_job_title_field'] = array(
+    '#type'          => 'select',
+    '#title'         => t('User\'s job title field'),
+    '#description'   => t('Field in user profile which contains user\'s job title'),
+    '#required'      => TRUE,
+    '#options'       => $user_type_fields_select,
+    '#default_value' => variable_get('os2intra_user_import_job_title_field')
+  );
+  // Variable which contains the name of user profile field which contains user\'s firstname.
+  $form['os2intra_structure_settings']['os2intra_user_import_firstname_field'] = array(
+    '#type'          => 'select',
+    '#title'         => t('User\'s firstname'),
+    '#description'   => t('Field in user profile which contains user\'s firstname'),
+    '#required'      => TRUE,
+    '#options'       => $user_type_fields_select,
+    '#default_value' => variable_get('os2intra_user_import_firstname_field')
+  );
+  // Variable which contains the name of user profile field which contains user\'s lasttname.
+  $form['os2intra_structure_settings']['os2intra_user_import_lastname_field'] = array(
+    '#type'          => 'select',
+    '#title'         => t('User\'s firstname'),
+    '#description'   => t('Field in user profile which contains user\'s lastname'),
+    '#required'      => TRUE,
+    '#options'       => $user_type_fields_select,
+    '#default_value' => variable_get('os2intra_user_import_lastname_field')
+  );
   // Variable which contains settings to determinate if user should be added  as members to parent departmnets.
   $form['os2intra_structure_settings']['os2intra_add_users_to_parent_departments'] = array(
     '#type'          => 'checkbox',
@@ -984,7 +1011,68 @@ $csv_cols_fallback_1 = array(
     '#suffix' => '</div>',
   );
 
-
+  $form['os2intra_mapping']['os2intra_mapping_leader'] = array(
+    '#type'          => 'fieldset',
+    '#tree'          => TRUE
+  );
+  $form['os2intra_mapping']['os2intra_mapping_leader']['primary'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Leder/chef'),
+    '#options'       => $csv_cols,
+    '#default_value' => $mapping['os2intra_mapping_leader']['primary'],
+    '#attributes'    => array(
+      'class'=> array('os2intra-mapping-primary-field')
+    )
+  );
+  $form['os2intra_mapping']['os2intra_mapping_leader']['secondary'] = array(
+    '#type'          => 'select',
+    '#options'       => $csv_cols_fallback_1,
+    '#default_value' => $mapping['os2intra_mapping_leader']['secondary'],
+    '#attributes'    => array(
+      'class'=> array('os2intra-mapping-fallback-field')
+    )
+  );
+  $form['os2intra_mapping']['os2intra_mapping_leader']['input'] = array(
+    '#type'          => 'textfield',
+    '#default_value' => $mapping['os2intra_mapping_leader']['input'],
+  );
+  $form['os2intra_mapping']['os2intra_mapping_leader']['markup'] = array(
+    '#type'   => 'item',
+    '#markup' => (isset($users['leader'])) ? $users['leader'] : '',
+    '#prefix' => '<div class="os2intra-mapping-markup-field">',
+    '#suffix' => '</div>',
+  );
+  $form['os2intra_mapping']['os2intra_mapping_has_ad_value'] = array(
+    '#type'          => 'fieldset',
+    '#tree'          => TRUE
+  );
+  $form['os2intra_mapping']['os2intra_mapping_has_ad_value']['primary'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Har AD'),
+    '#options'       => $csv_cols,
+    '#default_value' => $mapping['os2intra_mapping_has_ad_value']['primary'],
+    '#attributes'    => array(
+      'class'=> array('os2intra-mapping-primary-field')
+    )
+  );
+  $form['os2intra_mapping']['os2intra_mapping_has_ad_value']['secondary'] = array(
+    '#type'          => 'select',
+    '#options'       => $csv_cols_fallback_1,
+    '#default_value' => $mapping['os2intra_mapping_has_ad_value']['secondary'],
+    '#attributes'    => array(
+      'class'=> array('os2intra-mapping-fallback-field')
+    )
+  );
+  $form['os2intra_mapping']['os2intra_mapping_has_ad_value']['input'] = array(
+    '#type'          => 'textfield',
+    '#default_value' => $mapping['os2intra_mapping_has_ad_value']['input'],
+  );
+  $form['os2intra_mapping']['os2intra_mapping_has_ad_value']['markup'] = array(
+    '#type'   => 'item',
+    '#markup' => (isset($users['has_ad'])) ? $users['has_ad'] : '',
+    '#prefix' => '<div class="os2intra-mapping-markup-field">',
+    '#suffix' => '</div>',
+  );
   $form['cleanup_help_block'] = array(
     '#type'   => 'item',
     '#title'  => t('Cleanup script'),

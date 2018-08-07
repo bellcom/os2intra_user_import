@@ -116,7 +116,6 @@ function os2intra_user_import_check_users(&$users) {
       $query->fieldCondition('field_os2intra_employee_id', 'value', $user['employee_id']);
       $result = $query->execute();
     }
-
     // Unset users already created
     if ($result) {
       $update_users[key(array_shift($result))] = $user;
@@ -317,14 +316,14 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
   // User title tid
   $title_tid = os2intra_user_import_user_title($user['job_description']);
-
   // Birthday
   // For some reason, the first zero is chopped somewhere. Let's add it.
-  if (array_key_exists('birthdate', $user) && strlen($user['birthdate']) < 6) {
-    $user['birthdate'] = '0' . $user['birthdate'];
-  }
+  if (array_key_exists('birthdate', $user)) {
+    if (strlen($user['birthdate']) < 6) {
+      $user['birthdate'] = '0' . $user['birthdate'];
+    }
   $user['birthdate'] = date_format(date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s'), $user['birthdate'] . ' 00:00:00'), variable_get('os2intra_user_import_birthdate_db_format'));
-
+  }
   // Get user membership to department
   $department_nid = _os2intra_user_import_get_department_nid($user['department']);
 
@@ -333,7 +332,8 @@ function os2intra_user_import_save_user($user, $uid = '') {
   if (empty($current_timestamp)) {
     $current_timestamp = time();
   }
-
+  $firstname_field = variable_get('os2intra_user_import_firstname_field',  'field_name_first');
+  $lastname_field = variable_get('os2intra_user_import_lastname_field',  'field_name_last');
   // Populate static fields.
   $fields = array(
 
@@ -344,10 +344,10 @@ function os2intra_user_import_save_user($user, $uid = '') {
     'field_os2intra_ad_name'          => array(LANGUAGE_NONE => array(0 => array('value' => $user['ad_name']))),
 
     // First Name
-    'field_name_first'                => array(LANGUAGE_NONE => array(0 => array('value' => $user['first_name']))),
+    $firstname_field                => array(LANGUAGE_NONE => array(0 => array('value' => $user['first_name']))),
 
     // Last Name
-    'field_name_last'                 => array(LANGUAGE_NONE => array(0 => array('value' => $user['last_name']))),
+    $lastname_field                => array(LANGUAGE_NONE => array(0 => array('value' => $user['last_name']))),
 
     // Phone
     'field_os2intra_phone'            => array(LANGUAGE_NONE => array(0 => array('value' => (array_key_exists('phone', $user)) ? $user['phone'] : ''))),
@@ -377,7 +377,6 @@ function os2intra_user_import_save_user($user, $uid = '') {
       ),
     );
   }
-
   // Set users groups.
   $group_field = variable_get('os2intra_user_group_field');
   if (!empty($group_field)) {
@@ -412,7 +411,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
       $fields[$group_field][LANGUAGE_NONE] = $groups;
     }
   }
-  
+
   if (isset($user['email'])) {
     $fields['mail'] = $user['email'];
     $fields['init'] = $user['email'];
@@ -426,7 +425,8 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
   // Job description
   if ($title_tid) {
-    $fields['field_os2intra_user_titles'] = array(LANGUAGE_NONE => array(0 => array(variable_get('os2intra_user_import_job_title_connection_reference') => $title_tid)));
+    $title_field = variable_get('os2intra_user_import_job_title_field' , 'field_os2intra_user_titles');
+    $fields[$title_field] = array(LANGUAGE_NONE => array(0 => array(variable_get('os2intra_user_import_job_title_connection_reference') => $title_tid)));
   }
 
   // Termination date
@@ -467,6 +467,36 @@ function os2intra_user_import_save_user($user, $uid = '') {
     $fields['os2intra_users_opus_roles'][LANGUAGE_NONE] = array();
     foreach ($opus_role_tids as $opus_role_tid) {
       $fields['os2intra_users_opus_roles'][LANGUAGE_NONE][]['tid'] = $opus_role_tid;
+    }
+  }
+
+  // Set Leader/Chef
+  if (field_info_instance('user', 'field_overordnet', 'user') && array_key_exists('leader', $user)) {
+    if ($leader_uid =  os2intra_user_import_find_user_employee_id($user['leader'])) {
+      if ($account && $leaders = field_get_items('user', $account, 'field_overordnet')) {
+       $is_exist = FALSE;
+        foreach ($leaders as $leader) {
+          $fields['field_overordnet'][LANGUAGE_NONE][]['uid'] = $leader['uid'];
+          if ($leader['uid'] == $leader_uid) {
+            $is_exist = TRUE;
+          }
+        }
+        if ($is_exist === FALSE) {
+          $fields['field_overordnet'][LANGUAGE_NONE][]['uid'] = $leader_uid;
+        }
+      }
+      else {
+        $fields['field_overordnet'][LANGUAGE_NONE][]['uid'] = $leader_uid;
+      }
+    }
+  }
+   // Set Har AD field
+  if (field_info_instance('user', 'field_user_in_ad', 'user') && array_key_exists('has_ad', $user)) {
+    if ($user['has_ad'] == 'J') {
+      $fields['field_user_in_ad'][0]['value'] = 1;
+    }
+    else {
+      $fields['field_user_in_ad'][0]['value'] = 0;
     }
   }
 
@@ -555,4 +585,18 @@ function os2intra_user_import_generate_username($user) {
 //    $username .= $count + 1;
 //  }
   return $username;
+}
+/*
+ * search user by employee_id
+ */
+function os2intra_user_import_find_user_employee_id($employee_id) {
+  $query = new EntityFieldQuery;
+  $query->entityCondition('entity_type', 'user');
+  $query->fieldCondition('field_os2intra_employee_id', 'value', $employee_id);
+  $result = $query->execute();
+  // Unset users already created
+  if ($result) {
+    return key(array_shift($result));
+  }
+  return FALSE;
 }

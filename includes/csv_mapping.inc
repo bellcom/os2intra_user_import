@@ -31,7 +31,9 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
     'email' => 'os2intra_mapping_email',
     'birthdate' => 'os2intra_mapping_birthdate',
     'department_name' => 'os2intra_mapping_department_name',
-    'opus_roles' => 'os2intra_mapping_opus_roles'
+    'opus_roles' => 'os2intra_mapping_opus_roles',
+    'leader' => 'os2intra_mapping_leader',
+    'has_ad' => 'os2intra_mapping_has_ad_value',
   );
   // Load data from file
   $csv = array_map(function ($d) {
