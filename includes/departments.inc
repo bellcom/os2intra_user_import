@@ -177,9 +177,12 @@ function os2intra_user_import_create_department($tid, $department, $department_n
   }
 
   // Group type "Organisation"
-  // Todo: make more generic
   if (field_info_instance('node', 'field_os2intra_grouptype', variable_get('os2intra_groups_node_type'))) {
-    $node->field_os2intra_grouptype[LANGUAGE_NONE][0]['tid'] = 6;
+    $os2intra_groups_organisation_tid = variable_get('os2intra_groups_organisation_tid');
+    if (empty($os2intra_groups_organisation_tid)) {
+      os2intra_user_import_save_log('', 'Group ' . $name . ' has incorrect settings. Organization group type definition is empty.');
+    }
+    $node->field_os2intra_grouptype[LANGUAGE_NONE][0]['tid'] = $os2intra_groups_organisation_tid;
   }
 
   // Closed group, require invitation
@@ -220,11 +223,17 @@ function os2intra_user_import_add_user_to_parent_departments($account, $departme
       }
     }
 
-    // Find the node ID for each department in parent terms
+    // Find the node ID for each department in parent terms.
     $query = new EntityFieldQuery;
     $query->entityCondition('entity_type', 'node');
     $query->entityCondition('bundle', variable_get('os2intra_groups_node_type'));
     $query->fieldCondition($group_organisation_field, $group_organisation_reference, $parent_tids, 'IN');
+    // Additional condition when there are few types of groups.
+    if (field_info_instance('node', 'field_os2intra_grouptype', variable_get('os2intra_groups_node_type'))) {
+      $query->fieldCondition('field_os2intra_grouptype', 'tid', variable_get('os2intra_groups_organisation_tid'));
+    }
+
+    // Added membership only for real department.
     if (field_info_instance('node', 'field_os2intra_department_id', variable_get('os2intra_groups_node_type'))) {
       $query->fieldCondition('field_os2intra_department_id', 'value', 'NULL', '!=');
     }

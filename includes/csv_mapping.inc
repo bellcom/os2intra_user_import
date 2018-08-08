@@ -3,6 +3,13 @@
  * Helper function to parse file contents to array with relevant info
  */
 function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
+  $identification_method = variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION);
+  $rows = array();
+  if (empty($identification_method)) {
+    drupal_set_message('User activation mode is not setup. Please check user import configuration /admin/config/os2intra/user_import/settings', 'error');
+    return $rows;
+  }
+
   // CSV field mapping
   // rewrite for settings page?
   $mapping = variable_get('os2intra_mapping');
@@ -59,21 +66,14 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
     }
     // Skip if row has no ad_id and no employee_id
     if ($mapped_row['ad_id'] == '' && $mapped_row['employee_id'] == '' ) {
+      os2intra_user_import_save_log('', 'No ad_id and no employee_id found in row: ' . implode(';', $row));
       continue;
     }
 
-    // Generate ad_id if missing
+    // Try to set ad_id from ad_name column.
     if (!isset($mapped_row['ad_id'])) {
       if (isset($mapped_row['ad_name']) && !empty($mapped_row['ad_name'])) {
         $mapped_row['ad_id'] = $mapped_row['ad_name'];
-      }
-      else {
-        if (variable_get('os2intra_generate_username')) {
-          $mapped_row['ad_id'] = os2intra_user_import_generate_username($mapped_row);
-        }
-        else {
-          continue;
-        }
       }
     }
 

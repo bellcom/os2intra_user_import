@@ -155,6 +155,7 @@ $csv_cols_fallback_1 = array(
     '#type' => 'fieldset',
     '#title' => t('User activation'),
     '#collapsible' => TRUE,
+    '#weight' => -100,
   );
 
   $form['os2intra_user_import_activate']['activation_fields'] = array(
@@ -165,7 +166,9 @@ $csv_cols_fallback_1 = array(
   $form['os2intra_user_import_activate']['activation_fields']['os2intra_user_import_activate_identification'] = array(
     '#title' => t('User identification'),
     '#type' => 'select',
+    '#required' => TRUE,
     '#options' => array(
+      '' => t('None'),
       'ad_id' => t('AD id'),
       'employee_id' => ('Employee number'),
     ),
@@ -266,6 +269,27 @@ $csv_cols_fallback_1 = array(
       '#options'       => $group_type_fields_select,
       '#default_value' => variable_get('os2intra_user_import_group_department_title_field')
     );
+
+    if (isset($group_type_fields['field_os2intra_grouptype'])) {
+      // For case when group has group type field we have to define
+      // Organizational term.
+      $vid = taxonomy_vocabulary_machine_name_load('os2intra_tax_group_type')->vid;
+      $options = array('' => 'None');
+      foreach (taxonomy_get_tree($vid) as $item) {
+        $key = $item->tid;
+        $value = $item->name;
+        $options[$key] = $value;
+      }
+      $form['os2intra_structure_settings']['os2intra_groups_organisation_tid'] = array(
+        '#type'          => 'select',
+        '#title'         => t('Organization term'),
+        '#description'   => t('Gruppe Type taxonomy term define groups as Organization'),
+        '#required'      => TRUE,
+        '#options'       => $options,
+        '#default_value' => variable_get('os2intra_groups_organisation_tid'),
+      );
+    }
+
   } else {
     $form['os2intra_structure_settings']['os2intra_groups_organisation_connection_field'] = array(
       '#markup' => t('Please select "Groups node type" and save the form before you can select "Groups -> organisation connection field"')
@@ -295,6 +319,7 @@ $csv_cols_fallback_1 = array(
     '#options'       => array_merge(array('none' => t('None')), $user_type_fields_select),
     '#default_value' => variable_get('os2intra_user_organisation_field')
   );
+
   // Variable which contains the name of user profile field  which used for save reference to own user's organization(department).
   $form['os2intra_structure_settings']['os2intra_user_department_field'] = array(
     '#type'          => 'select',
@@ -358,12 +383,6 @@ $csv_cols_fallback_1 = array(
     '#title'         => t('Save old departments memberships'),
     '#description'   => t('If checked only membership from current import will be added'),
     '#default_value' => variable_get('os2intra_revoke_og_roles')
-  );
-  // Variable which contains settings to determinate how username should be generated.
-  $form['os2intra_structure_settings']['os2intra_generate_username'] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('Generate unique user name from "user full name + department name" when AD id is not present'),
-    '#default_value' => variable_get('os2intra_generate_username')
   );
   // Variable which contains birthday format.
   $form['os2intra_structure_settings']['os2intra_user_import_birthdate_db_format'] = array(

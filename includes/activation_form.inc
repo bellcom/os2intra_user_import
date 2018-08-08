@@ -103,9 +103,15 @@ function os2intra_user_import_activate_form_validate($form, &$form_state) {
         }
 
         // Check if it matches the users birthday field
-        $birthday_field = field_get_items('user', $user, 'field_os2intra_birthdate');
-        if ($input_birthday !== $birthday_field[0]['value']) {
-          form_set_error('form', 'Please check your input.');
+        $birthday_field_name = variable_get('os2intra_user_import_birthday_field');
+        if (!empty(field_info_instance('user', $birthday_field_name, 'user'))) {
+          $birthday_field = field_get_items('user', $user, $birthday_field_name);
+          if ($input_birthday !== date("dmy", strtotime($birthday_field[0]['value']))) {
+            form_set_error('form', 'Please check your input.');
+          }
+        }
+        else {
+          form_set_error('form', 'Activation form has wrong configuration settings. Please contact site administrator');
         }
       }
 
