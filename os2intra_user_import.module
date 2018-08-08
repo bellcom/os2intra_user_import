@@ -337,8 +337,8 @@ function os2intra_user_import_departments_without_employees() {
 
 function os2intra_user_import_user_insert(&$edit, $account, $category) {
   //user create manually by admin
-  if (isset($_POST['form_id']) && $_POST['form_id'] == 'user_register_form' && field_info_instance('user', 'os2intra_users_ad_name', 'user')){
 
+  if (isset($_POST['form_id']) && $_POST['form_id'] == 'user_register_form' && field_info_instance('user', 'field_os2intra_ad_name', 'user')){
     // Create authmap for user
     $authmap = array(
       'authname_simplesamlphp_auth' => $account->field_os2intra_ad_name[LANGUAGE_NONE][0]['value'] . variable_get('os2intra_user_import_authmap_name_suffix'),
