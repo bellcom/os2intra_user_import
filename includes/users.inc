@@ -412,7 +412,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
       $fields[$group_field][LANGUAGE_NONE] = $groups;
     }
   }
-  
+
   if (isset($user['email'])) {
     $fields['mail'] = $user['email'];
     $fields['init'] = $user['email'];
@@ -491,7 +491,25 @@ function os2intra_user_import_save_user($user, $uid = '') {
       'field_name' => variable_get('os2intra_user_primary_og_role_reference_field')
     );
     og_group('node', $department_nid, $values);
-    og_role_grant('node', $department_nid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
+    //we need to give manager role to user, if he is manager of own department
+    $is_manager =  FALSE;
+    if (variable_get('os2intra_add_managers_to_departments')) {
+      $og_department_node =  node_load($department_nid);
+      $group_organisation_field = variable_get('os2intra_groups_organisation_connection_field');
+      $group_organisation_reference = variable_get('os2intra_groups_organisation_connection_reference');
+      $organisation_tid = field_get_items('node', $og_department_node, $group_organisation_field)[0][$group_organisation_reference];
+      $department_term = entity_metadata_wrapper('taxonomy_term', $organisation_tid);
+      $managers_uids = $department_term->field_os2intra_manager_id->raw();
+      if (in_array($account->uid, $managers_uids)) {
+        $is_manager =  TRUE;
+      }
+    }
+    if ($is_manager) {
+      og_role_grant('node', $department_nid, $account->uid, variable_get('os2intra_user_import_og_role_id_manager', 15));
+    }
+    else {
+      og_role_grant('node', $department_nid, $account->uid, variable_get('os2intra_user_import_og_role_id_primary', 16));
+    }
   }
   //create subscription to user's department
   $user_subscriptions = flag_get_user_flags('node', $department_nid, $account->uid);
