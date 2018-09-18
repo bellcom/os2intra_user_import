@@ -265,12 +265,17 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
   // @todo: check that timestamp is not today
   if (array_key_exists('termination_date', $user)) {
-    // Check if termination date is formatted as date
-    $termination_date = date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s') , $user['termination_date'] . ' 00:00:00');
-    if ($termination_date) {
-      $termination_date_timestamp = date_timestamp_get($termination_date);
-    } else {
+    if (variable_get('os2intra_user_use_timestamp', FALSE)) {
       $termination_date_timestamp = $user['termination_date'];
+    }
+    else {
+      // Check if termination date is formatted as date
+      $termination_date = date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s') , $user['termination_date'] . ' 00:00:00');
+      if ($termination_date) {
+        $termination_date_timestamp = date_timestamp_get($termination_date);
+      } else {
+        $termination_date_timestamp = $user['termination_date'];
+      }
     }
 
     // Check if the timestamp supplied from the import is larger than
@@ -319,10 +324,15 @@ function os2intra_user_import_save_user($user, $uid = '') {
   // Birthday
   // For some reason, the first zero is chopped somewhere. Let's add it.
   if (array_key_exists('birthdate', $user)) {
-    if (strlen($user['birthdate']) < 6) {
-      $user['birthdate'] = '0' . $user['birthdate'];
+    if (variable_get('os2intra_user_use_timestamp', FALSE)) {
+      $user['birthdate'] = date($user['birthdate'], variable_get('os2intra_user_import_birthdate_db_format'));
     }
-  $user['birthdate'] = date_format(date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s'), $user['birthdate'] . ' 00:00:00'), variable_get('os2intra_user_import_birthdate_db_format'));
+    else {
+      if (strlen($user['birthdate']) < 6) {
+          $user['birthdate'] = '0' . $user['birthdate'];
+      }
+      $user['birthdate'] = date_format(date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s'), $user['birthdate'] . ' 00:00:00'), variable_get('os2intra_user_import_birthdate_db_format'));
+    }
   }
   // Get user membership to department
   $department_nid = _os2intra_user_import_get_department_nid($user['department']);
