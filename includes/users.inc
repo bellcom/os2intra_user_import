@@ -265,23 +265,31 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
   // @todo: check that timestamp is not today
   if (array_key_exists('termination_date', $user)) {
-    if (variable_get('os2intra_user_use_timestamp', FALSE)) {
-      $termination_date_timestamp = $user['termination_date'];
-    }
-    else {
-      // Check if termination date is formatted as date
-      $termination_date = date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s') , $user['termination_date'] . ' 00:00:00');
-      if ($termination_date) {
-        $termination_date_timestamp = date_timestamp_get($termination_date);
-      } else {
+    // Check if termination date is formatted as date
+    $termination_date = date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s') , $user['termination_date'] . ' 00:00:00');
+    if ($termination_date) {
+      $termination_date_timestamp = date_timestamp_get($termination_date);
+    } else {
         $termination_date_timestamp = $user['termination_date'];
-      }
     }
-
     // Check if the timestamp supplied from the import is larger than
     // what unix timestamps can be.
     if ($termination_date_timestamp > 2147483647 or $termination_date_timestamp == FALSE ) {
       $termination_date_timestamp = 1;
+    }
+  }
+  if (array_key_exists('start_date', $user)) {
+    // Check if termination date is formatted as date
+    $start_date = date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s') , $user['termination_date'] . ' 00:00:00');
+    if ($start_date) {
+      $start_date_timestamp = date_timestamp_get($start_date);
+    } else {
+      $start_date_timestamp = $user['start_date'];
+    }
+     // Check if the timestamp supplied from the import is larger than
+    // what unix timestamps can be.
+    if ($start_date_timestamp > 2147483647 or $start_date_timestamp == FALSE ) {
+      $start_date_timestamp = 1;
     }
   }
 
@@ -324,15 +332,10 @@ function os2intra_user_import_save_user($user, $uid = '') {
   // Birthday
   // For some reason, the first zero is chopped somewhere. Let's add it.
   if (array_key_exists('birthdate', $user)) {
-    if (variable_get('os2intra_user_use_timestamp', FALSE)) {
-      $user['birthdate'] = date($user['birthdate'], variable_get('os2intra_user_import_birthdate_db_format'));
+    if (strlen($user['birthdate']) < 6) {
+      $user['birthdate'] = '0' . $user['birthdate'];
     }
-    else {
-      if (strlen($user['birthdate']) < 6) {
-          $user['birthdate'] = '0' . $user['birthdate'];
-      }
-      $user['birthdate'] = date_format(date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s'), $user['birthdate'] . ' 00:00:00'), variable_get('os2intra_user_import_birthdate_db_format'));
-    }
+    $user['birthdate'] = date_format(date_create_from_format(variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s'), $user['birthdate'] . ' 00:00:00'), variable_get('os2intra_user_import_birthdate_db_format'));
   }
   // Get user membership to department
   $department_nid = _os2intra_user_import_get_department_nid($user['department']);
@@ -442,6 +445,11 @@ function os2intra_user_import_save_user($user, $uid = '') {
   // Termination date
   if (isset($termination_date_timestamp)) {
     $fields['field_os2intra_termination_date'] = array(LANGUAGE_NONE => array(0 => array('value' => $termination_date_timestamp)));
+  }
+
+    // Termination date
+  if (isset($start_date_timestamp)) {
+    $fields['field_commencement'] = array(LANGUAGE_NONE => array(0 => array('value' => $start_date_timestamp)));
   }
 
   // Handle whether we're updating or creating a new user

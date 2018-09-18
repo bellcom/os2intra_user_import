@@ -101,12 +101,6 @@ $csv_cols_fallback_1 = array(
     '#description'   => t('Date format in CSV file. See possible values in the <a href="http://php.net/manual/en/function.date.php" target="_blank">PHP manual</a>.'),
     '#default_value' => variable_get('os2intra_user_import_date_format', 'd.m.y H:i:s'),
   );
-  $form['os2intra_user_use_timestamp'] = array(
-    '#title'         => t('Use Unix timestamp instead of PHP date format.'),
-    '#type'          => 'checkbox',
-    '#default_value' => variable_get('os2intra_user_use_timestamp', FALSE),
-  );
-
   $form['os2intra_user_default_groups'] = array(
     '#title'         => t('Node ids (nid) of default OG groups, that should be added to every imported used'),
     '#type'          => 'textfield',
@@ -822,6 +816,37 @@ $csv_cols_fallback_1 = array(
   $form['os2intra_mapping']['os2intra_mapping_termination_date']['markup'] = array(
     '#type'   => 'item',
     '#markup' => (isset($users['termination_date'])) ? $users['termination_date'] : '',
+    '#prefix' => '<div class="os2intra-mapping-markup-field">',
+    '#suffix' => '</div>',
+  );
+  $form['os2intra_mapping']['os2intra_mapping_start_date'] = array(
+    '#type'          => 'fieldset',
+    '#tree'          => TRUE
+  );
+  $form['os2intra_mapping']['os2intra_mapping_start_date']['primary'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Start date'),
+    '#options'       => $csv_cols,
+    '#default_value' => $mapping['os2intra_mapping_start_date']['primary'],
+    '#attributes'    => array(
+      'class'=> array('os2intra-mapping-primary-field')
+    )
+  );
+  $form['os2intra_mapping']['os2intra_mapping_start_date']['secondary'] = array(
+    '#type'          => 'select',
+    '#options'       => $csv_cols_fallback_1,
+    '#default_value' => $mapping['os2intra_mapping_start_date']['secondary'],
+    '#attributes'    => array(
+      'class'=> array('os2intra-mapping-fallback-field')
+    )
+  );
+  $form['os2intra_mapping']['os2intra_mapping_start_date']['input'] = array(
+    '#type'          => 'textfield',
+    '#default_value' => $mapping['os2intra_mapping_start_date']['input'],
+  );
+  $form['os2intra_mapping']['os2intra_mapping_start_date']['markup'] = array(
+    '#type'   => 'item',
+    '#markup' => (isset($users['start_date'])) ? $users['start_date'] : '',
     '#prefix' => '<div class="os2intra-mapping-markup-field">',
     '#suffix' => '</div>',
   );

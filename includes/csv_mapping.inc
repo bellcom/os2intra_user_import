@@ -26,6 +26,7 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
     'centre_name' => 'os2intra_mapping_centre_name',
     'job_description' => 'os2intra_mapping_job_description',
     'termination_date' => 'os2intra_mapping_termination_date',
+    'start_date' => 'os2intra_mapping_start_date',
     'phone' => 'os2intra_mapping_phone',
     'mobile' => 'os2intra_mapping_mobile',
     'email' => 'os2intra_mapping_email',
