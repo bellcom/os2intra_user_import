@@ -46,7 +46,9 @@ function os2intra_user_import_groups($users) {
       $term = taxonomy_term_load(key($result['taxonomy_term']));
       $term->name = $user['department_name'];
       os2intra_user_import_save_log('', 'Looping over existing term: ' . $term->name);
-      $term->parent = array($parent_tid);
+      if ($term->tid != $parent_tid) {
+        $term->parent = array($parent_tid);
+      }
       if ($user['department'] != $user['centre']) {
         // Search for parent tid for department
         $result = os2intra_user_import_query_term_by_department($user['centre']);
@@ -222,36 +224,36 @@ function os2intra_user_import_add_user_to_parent_departments($account, $departme
         $parent_tids[] = $parent_term->tid;
       }
     }
-
-    // Find the node ID for each department in parent terms.
-    $query = new EntityFieldQuery;
-    $query->entityCondition('entity_type', 'node');
-    $query->entityCondition('bundle', variable_get('os2intra_groups_node_type'));
-    $query->fieldCondition($group_organisation_field, $group_organisation_reference, $parent_tids, 'IN');
-    // Additional condition when there are few types of groups.
-    if (field_info_instance('node', 'field_os2intra_grouptype', variable_get('os2intra_groups_node_type'))) {
-      $query->fieldCondition('field_os2intra_grouptype', 'tid', variable_get('os2intra_groups_organisation_tid'));
-    }
-
-    // Added membership only for real department.
-    if (field_info_instance('node', 'field_os2intra_department_id', variable_get('os2intra_groups_node_type'))) {
-      $query->fieldCondition('field_os2intra_department_id', 'value', 'NULL', '!=');
-    }
-    $results = $query->execute();
-
-    if (isset($results['node'])) {
-      foreach ($results['node'] as $result) {
-        $og_group_node_ids[] = $result->nid;
+    if (isset($parent_tids)) {
+      // Find the node ID for each department in parent terms.
+      $query = new EntityFieldQuery;
+      $query->entityCondition('entity_type', 'node');
+      $query->entityCondition('bundle', variable_get('os2intra_groups_node_type'));
+      $query->fieldCondition($group_organisation_field, $group_organisation_reference, $parent_tids, 'IN');
+      // Additional condition when there are few types of groups.
+      if (field_info_instance('node', 'field_os2intra_grouptype', variable_get('os2intra_groups_node_type'))) {
+        $query->fieldCondition('field_os2intra_grouptype', 'tid', variable_get('os2intra_groups_organisation_tid'));
       }
 
-      $values = array(
-        'entity' => $account,
-        'field_name' => variable_get('os2intra_user_parent_og_role_reference_field'),
-      );
-      foreach ($og_group_node_ids as $nid) {
-        // Add the user to the group and set role.
-        og_group('node', $nid, $values);
-        og_role_grant('node', $nid, $account->uid, variable_get('os2intra_user_import_og_role_id_parent', 14));
+      // Added membership only for real department.
+      if (field_info_instance('node', 'field_os2intra_department_id', variable_get('os2intra_groups_node_type'))) {
+        $query->fieldCondition('field_os2intra_department_id', 'value', 'NULL', '!=');
+      }
+      $results = $query->execute();
+      if (isset($results['node'])) {
+        foreach ($results['node'] as $result) {
+          $og_group_node_ids[] = $result->nid;
+        }
+
+        $values = array(
+          'entity' => $account,
+          'field_name' => variable_get('os2intra_user_parent_og_role_reference_field'),
+        );
+        foreach ($og_group_node_ids as $nid) {
+          // Add the user to the group and set role.
+          og_group('node', $nid, $values);
+          og_role_grant('node', $nid, $account->uid, variable_get('os2intra_user_import_og_role_id_parent', 14));
+        }
       }
     }
   }
