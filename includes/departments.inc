@@ -26,11 +26,9 @@ function os2intra_user_import_groups($users) {
 
   foreach ($users as $user) {
     if (empty($user['centre'])) {
-      error_log('Center is missing - dropping ' . $user['ad_id']);
       os2intra_user_import_save_log('', 'Skipping group. Parent department is missing. AD_ID:' . $user['ad_id'] . ' User ' . $user['first_name'] . ' ' . $user['last_name']);
       continue;
     } elseif (empty($user['department'])) {
-      error_log('Department missing - dropping ' . $group_line['ad_id']);
       os2intra_user_import_save_log('', 'Skipping group. department is missing. AD_ID:' . $user['ad_id'] . ' User ' . $user['first_name'] . ' ' . $user['last_name']);
       continue;
     }
