@@ -2,8 +2,53 @@
 /**
  * Disable users according to termination date
  */
-function os2intra_user_import_disable_users() {
+function os2intra_user_import_disable_users($users_to_disable = NULL) {
   os2intra_user_import_save_log('', 'Start disabling users');
+  if (variable_get('os2intra_user_import_user_disable_method', 'termination_date') == 'termination_date') {
+    os2intra_user_import_disable_users_based_on_termination_date();
+  }
+  else {
+    os2intra_user_import_disable_users_based_on_csv_file($users_to_disable);
+  }
+  os2intra_user_import_save_log('', 'User disabling finished');
+}
+function os2intra_user_import_disable_users_based_on_csv_file($users_to_disable) {
+  $timestamp = strtotime("-6 months");
+  if (isset($users_to_disable) && !empty($users_to_disable)) {
+    foreach($users_to_disable as $uid => $value) {
+      $user = user_load($uid);
+      $user->status = 0;
+      $user->field_os2intra_user_disable_date['und'][0]['value'] = time();
+      user_save($user);
+      os2intra_user_import_save_log('', 'Disable uid: ' . $uid);
+    }
+  }
+  $query = new EntityFieldQuery;
+  $query->entityCondition('entity_type', 'user');
+  $query->fieldCondition('field_os2intra_termination_date', 'value', $timestamp, '<');
+  $query->fieldCondition('field_os2intra_termination_date', 'value', 1, '>');
+  $result = reset($query->execute());
+  if (is_array($result)) {
+    foreach ($result as $uid => $item) {
+      $row = array(
+        array('user_cancel_notify' => FALSE,
+          'user_cancel_method' => 'user_cancel_reassign',
+        ),
+        $uid,
+        'user_cancel_reassign'
+      );
+      $operations[] = array('user_cancel', $row);
+    }
+    $batch = array(
+      'operations' => $operations,
+    );
+    batch_set($batch);
+    $batch = &batch_get();
+    $batch['progressive'] = FALSE;
+    batch_process();
+  }
+}
+function os2intra_user_import_disable_users_based_on_termination_date() {
   $timestamp = strtotime('midnight tomorrow');
   if (variable_get('os2intra_user_import_user_disable_action', 'user_disable') == 'user_delete_reassign') {
     $query = new EntityFieldQuery;
@@ -18,12 +63,24 @@ function os2intra_user_import_disable_users() {
       foreach ($result as $uid => $item) {
         $account =  user_load($uid);
         $user_name = $account->field_name_first['und'][0]['value'] . ' ' . $account->field_name_last['und'][0]['value'] . ' (' . $account->mail . ')';
-        module_invoke_all('user_cancel', array(), $account, $method);
-        user_delete($uid);
+        $row = array(
+          array('user_cancel_notify' => FALSE,
+            'user_cancel_method' => 'user_cancel_reassign',
+          ),
+          $uid,
+          'user_cancel_reassign'
+        );
+        $operations[] = array('user_cancel', $row);
         os2intra_user_import_save_log('', 'Delete user: ' . $user_name);
       }
+      $batch = array(
+        'operations' => $operations,
+      );
+      batch_set($batch);
+      $batch = &batch_get();
+      $batch['progressive'] = FALSE;
+      batch_process();
     }
-
   }
   else {
     // Query all users with termination date today.
@@ -45,9 +102,7 @@ function os2intra_user_import_disable_users() {
       }
     }
   }
-  os2intra_user_import_save_log('', 'User disabling finished');
 }
-
 /**
  * Check if the user is already created in the system.
  */
@@ -356,7 +411,7 @@ function os2intra_user_import_save_user($user, $uid = '') {
     'field_os2intra_mobile'            => array(LANGUAGE_NONE => array(0 => array('value' => (array_key_exists('mobile', $user)) ? $user['mobile'] : ''))),
 
     // Activate user
-    'status'                          => ($account->uid != 0) ? $account->status : 1,
+    //'status'                          => ($account->uid != 0) ? $account->status : 1,
 
     'timezone'                        => 'Europe/Copenhagen',
     // The organisational ids from this import
@@ -365,6 +420,12 @@ function os2intra_user_import_save_user($user, $uid = '') {
     'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => $current_timestamp))),
   );
 
+  if (variable_get('os2intra_user_import_user_disable_method', 'termination_date') == 'csv_file') {
+    $fields['status'] = 1;
+  }
+  else {
+    $fields['status'] = ($account->uid != 0) ? $account->status : 1;
+  }
   // Populate dynamic fields.
   // Set birthdate.
   $birthday_field = variable_get('os2intra_user_import_birthday_field');
@@ -573,4 +634,14 @@ function os2intra_user_import_generate_username($user) {
 //    $username .= $count + 1;
 //  }
   return $username;
+}
+
+function os2intra_user_import_get_all_active_users() {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'user')
+    ->propertyCondition('status', 1)
+    ->entityCondition('entity_id', 1, '!=');
+  $results = $query->execute();
+  $uids = array_flip(array_keys($results['user']));
+  return $uids;
 }

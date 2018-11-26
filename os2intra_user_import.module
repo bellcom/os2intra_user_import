@@ -147,7 +147,8 @@ function os2intra_user_import_run_with_drush() {
     }
 
     // Check if import has run successfully in 1.5 day.
-    if ($current_timestamp > $last_import_epoch + 129600) {
+    $period =  variable_get('os2intra_user_import_user_notification_period', 1.5) * 60 * 60 * 24;
+    if ($current_timestamp > $last_import_epoch + $period) {
       // Send mail.
       $params = array(
         'subject' => t('1.5 day since last import'),
@@ -189,7 +190,7 @@ function os2intra_user_import_run_with_drush() {
       if ($current_timestamp != $last_import_temp_groups) {
         os2intra_user_import_save_log('', 'Starting groups. Last import different than the main import: ' . $current_timestamp . ' / ' . $last_import_temp_groups);
         os2intra_user_import_save_log('', 'Starting Group Import Loop');
-        os2intra_user_import_groups($users);
+        //os2intra_user_import_groups($users);
         os2intra_user_import_save_log('', 'Ending Group Import Loop');
         variable_set('os2intra_user_import_epoch_groups', $current_timestamp);
       }
@@ -202,6 +203,8 @@ function os2intra_user_import_run_with_drush() {
         os2intra_user_import_save_log('', 'Starting User Loop');
 
         $update_users = os2intra_user_import_check_users($users);
+        $active_users = os2intra_user_import_get_all_active_users();
+
         // Loop over users and create.
         os2intra_user_import_save_log('', 'Start Creating Users');
 
@@ -216,6 +219,9 @@ function os2intra_user_import_run_with_drush() {
         // Update users
         os2intra_user_import_save_log('', 'Start Update Users');
         foreach ($update_users as $uid => $user) {
+          if (isset($active_users[$uid])) {
+            unset($active_users[$uid]);
+          }
           if (empty($user['department'])) {
             os2intra_user_import_save_log('', 'Skipping user. department is missing. AD_ID:' . $user['ad_id'] . ' User ' . $user['first_name'] . ' ' . $user['last_name']);
             continue;
@@ -233,7 +239,7 @@ function os2intra_user_import_run_with_drush() {
       // Disable users.
       if ($current_timestamp != $last_import_temp_users_disable) {
         os2intra_user_import_save_log('', 'Start Disabling Users');
-        os2intra_user_import_disable_users();
+        os2intra_user_import_disable_users($active_users);
         os2intra_user_import_save_log('', 'End Disabling Users');
         variable_set('os2intra_user_import_epoch_users_disable', $current_timestamp);
       }
@@ -337,5 +343,11 @@ function os2intra_user_import_user_insert(&$edit, $account, $category) {
     {
       user_set_authmaps($account, $authmap);
     }
+  }
+}
+
+function os2intra_user_import_user_presave(&$edit, $account, $category){
+  if ($edit['status'] === '1') {
+    unset($edit['field_os2intra_user_disable_date']['und'][0]);
   }
 }
