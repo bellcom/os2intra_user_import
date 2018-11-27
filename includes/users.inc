@@ -25,6 +25,8 @@ function os2intra_user_import_disable_users_based_on_csv_file($users_to_disable)
   }
   $query = new EntityFieldQuery;
   $query->entityCondition('entity_type', 'user');
+  $query->propertyCondition('status', '0');
+  $query->entityCondition('entity_id', array(1, 0), 'NOT IN');
   $query->fieldCondition('field_os2intra_termination_date', 'value', $timestamp, '<');
   $query->fieldCondition('field_os2intra_termination_date', 'value', 1, '>');
   $result = reset($query->execute());
@@ -640,7 +642,7 @@ function os2intra_user_import_get_all_active_users() {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'user')
     ->propertyCondition('status', 1)
-    ->entityCondition('entity_id', 1, '!=');
+    ->entityCondition('entity_id', array(1, 0), 'NOT IN');
   $results = $query->execute();
   $uids = array_flip(array_keys($results['user']));
   return $uids;
