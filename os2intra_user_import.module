@@ -190,7 +190,7 @@ function os2intra_user_import_run_with_drush() {
       if ($current_timestamp != $last_import_temp_groups) {
         os2intra_user_import_save_log('', 'Starting groups. Last import different than the main import: ' . $current_timestamp . ' / ' . $last_import_temp_groups);
         os2intra_user_import_save_log('', 'Starting Group Import Loop');
-        //os2intra_user_import_groups($users);
+        os2intra_user_import_groups($users);
         os2intra_user_import_save_log('', 'Ending Group Import Loop');
         variable_set('os2intra_user_import_epoch_groups', $current_timestamp);
       }
