@@ -203,8 +203,9 @@ function os2intra_user_import_run_with_drush() {
         os2intra_user_import_save_log('', 'Starting User Loop');
 
         $update_users = os2intra_user_import_check_users($users);
-        $active_users = os2intra_user_import_get_all_active_users();
-
+        if (variable_get('os2intra_user_import_user_disable_method', 'termination_date') == 'csv_file') {
+          $active_users = os2intra_user_import_get_all_active_users();
+        }
         // Loop over users and create.
         os2intra_user_import_save_log('', 'Start Creating Users');
 
@@ -219,7 +220,7 @@ function os2intra_user_import_run_with_drush() {
         // Update users
         os2intra_user_import_save_log('', 'Start Update Users');
         foreach ($update_users as $uid => $user) {
-          if (isset($active_users[$uid])) {
+          if ( variable_get('os2intra_user_import_user_disable_method', 'termination_date') == 'csv_file' && isset($active_users[$uid])) {
             unset($active_users[$uid]);
           }
           if (empty($user['department'])) {

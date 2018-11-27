@@ -27,8 +27,8 @@ function os2intra_user_import_disable_users_based_on_csv_file($users_to_disable)
   $query->entityCondition('entity_type', 'user');
   $query->propertyCondition('status', '0');
   $query->entityCondition('entity_id', array(1, 0), 'NOT IN');
-  $query->fieldCondition('field_os2intra_termination_date', 'value', $timestamp, '<');
-  $query->fieldCondition('field_os2intra_termination_date', 'value', 1, '>');
+  $query->fieldCondition('field_os2intra_user_disable_date', 'value', $timestamp, '<');
+  $query->fieldCondition('field_os2intra_user_disable_date', 'value', 1, '>');
   $result = reset($query->execute());
   if (is_array($result)) {
     foreach ($result as $uid => $item) {
