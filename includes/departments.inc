@@ -250,7 +250,13 @@ function os2intra_user_import_add_user_to_parent_departments($account, $departme
         foreach ($og_group_node_ids as $nid) {
           // Add the user to the group and set role.
           og_group('node', $nid, $values);
-          og_role_grant('node', $nid, $account->uid, variable_get('os2intra_user_import_og_role_id_parent', 14));
+          if (os2intra_user_import_is_user_department_manager($account->uid, $nid)) {
+            og_role_grant('node', $nid, $account->uid, variable_get('os2intra_user_import_og_role_id_manager', 15));
+          }
+          else {
+            og_role_grant('node', $nid, $account->uid, variable_get('os2intra_user_import_og_role_id_parent', 14));
+          }
+         // og_role_grant('node', $nid, $account->uid, variable_get('os2intra_user_import_og_role_id_parent', 14));
         }
       }
     }
