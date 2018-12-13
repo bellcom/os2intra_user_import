@@ -5,7 +5,7 @@
 function os2intra_user_import_settings() {
   drupal_add_css(drupal_get_path('module', 'os2intra_user_import') . '/css/os2intra_user_import.css');
   drupal_add_js(drupal_get_path('module', 'os2intra_user_import') . '/js/os2intra_user_import.js');
- $import_dir = variable_get('os2intra_user_import_dir', 'private://user_import');
+  $import_dir = variable_get('os2intra_user_import_dir', 'private://user_import');
 
     $realpath = '';
 
@@ -115,7 +115,11 @@ $csv_cols_fallback_1 = array(
     '#description'   => t('Comma-separeted list of emails'),
     '#default_value' => variable_get('os2intra_user_notification_email', variable_get('site_mail')),
   );
-
+  $form['os2intra_user_import_user_notification_period'] = array(
+    '#title'         => t("Amount of days after which will be send notification if import has run successfully"),
+    '#type'          => 'textfield',
+    '#default_value' => variable_get('os2intra_user_import_user_notification_period', 1.5),
+  );
   $form['os2intra_user_import_og_role_id_parent'] = array(
     '#title'         => t('Parent OG Role Grant ID'),
     '#type'          => 'textfield',
@@ -142,6 +146,12 @@ $csv_cols_fallback_1 = array(
     '#type'          => 'textfield',
     '#default_value' => variable_get('os2intra_user_import_authmap_name_suffix'),
     '#description'   => t("For example '@fredericia.dk'"),
+  );
+  $form['os2intra_user_import_user_disable_method'] = array(
+    '#title'         => t("Deactivate user if"),
+    '#type'          => 'radios',
+    '#options' =>  array('csv_file' => t('User is not exists in CVS file'), 'termination_date' => t('Termination date is expiried')),
+    '#default_value' => variable_get('os2intra_user_import_user_disable_method', 'termination_date'),
   );
   $form['os2intra_user_import_user_disable_action'] = array(
     '#title'         => t("Action that sould be done when user disabled"),
