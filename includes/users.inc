@@ -406,12 +406,6 @@ function os2intra_user_import_save_user($user, $uid = '') {
     // Last Name
     'field_name_last'                 => array(LANGUAGE_NONE => array(0 => array('value' => $user['last_name']))),
 
-    // Phone
-    'field_os2intra_phone'            => array(LANGUAGE_NONE => array(0 => array('value' => (array_key_exists('phone', $user)) ? $user['phone'] : ''))),
-
-    // Mobile
-    'field_os2intra_mobile'            => array(LANGUAGE_NONE => array(0 => array('value' => (array_key_exists('mobile', $user)) ? $user['mobile'] : ''))),
-
     // Activate user
     //'status'                          => ($account->uid != 0) ? $account->status : 1,
 
@@ -421,6 +415,15 @@ function os2intra_user_import_save_user($user, $uid = '') {
 
     'field_os2intra_import_timestamp' => array(LANGUAGE_NONE => array(0 => array('value' => $current_timestamp))),
   );
+
+  // Phone
+  if ((array_key_exists('phone', $user))) {
+    $fields['field_os2intra_phone'] = array(LANGUAGE_NONE => array(0 => array('value' => $user['phone'])));
+  }
+  // Mobile
+  if ((array_key_exists('mobile', $user))) {
+    $fields['field_os2intra_mobile'] = array(LANGUAGE_NONE => array(0 => array('value' => $user['mobile'])));
+  }
 
   if (variable_get('os2intra_user_import_user_disable_method', 'termination_date') == 'csv_file') {
     $fields['status'] = 1;
