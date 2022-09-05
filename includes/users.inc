@@ -4,10 +4,11 @@
  */
 function os2intra_user_import_disable_users($users_to_disable = NULL) {
   os2intra_user_import_save_log('', 'Start disabling users');
-  if (variable_get('os2intra_user_import_user_disable_method', 'termination_date') == 'termination_date') {
+  $user_disable_method = variable_get('os2intra_user_import_user_disable_method', array('termination_date'=>'termination_date'));
+  if ($user_disable_method['termination_date']) {
     os2intra_user_import_disable_users_based_on_termination_date();
   }
-  else {
+  if ($user_disable_method['csv_file']) {
     os2intra_user_import_disable_users_based_on_csv_file($users_to_disable);
   }
   os2intra_user_import_save_log('', 'User disabling finished');
@@ -17,10 +18,12 @@ function os2intra_user_import_disable_users_based_on_csv_file($users_to_disable)
   if (isset($users_to_disable) && !empty($users_to_disable)) {
     foreach($users_to_disable as $uid => $value) {
       $user = user_load($uid);
+      if ($user->status == 1) {
       $user->status = 0;
-      $user->field_os2intra_user_disable_date['und'][0]['value'] = time();
-      user_save($user);
-      os2intra_user_import_save_log('', 'Disable uid: ' . $uid);
+        $user->field_os2intra_user_disable_date['und'][0]['value'] = time();
+        user_save($user);
+        os2intra_user_import_save_log('', 'Disable uid: ' . $uid);
+      }
     }
   }
   $query = new EntityFieldQuery;

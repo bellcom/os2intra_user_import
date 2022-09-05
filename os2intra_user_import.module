@@ -131,6 +131,7 @@ function os2intra_user_import_overview() {
  * User import wrapper function.
  */
 function os2intra_user_import_run_with_drush() {
+  $user_disable_method = variable_get('os2intra_user_import_user_disable_method', array('termination_date'=>1));
   if (empty(variable_get('os2intra_user_import_activate_identification', OS2INTRA_USER_IMPORT_ACTIVATE_IDENTIFICATION))) {
     $message = 'User activation mode is not setup. Please check user import configuration /admin/config/os2intra/user_import/settings';
     os2intra_user_import_save_log('', $message);
@@ -203,7 +204,7 @@ function os2intra_user_import_run_with_drush() {
         os2intra_user_import_save_log('', 'Starting User Loop');
 
         $update_users = os2intra_user_import_check_users($users);
-        if (variable_get('os2intra_user_import_user_disable_method', 'termination_date') == 'csv_file') {
+        if ($user_disable_method['csv_file']) {
           $active_users = os2intra_user_import_get_all_active_users();
         }
         // Loop over users and create.
@@ -220,7 +221,7 @@ function os2intra_user_import_run_with_drush() {
         // Update users
         os2intra_user_import_save_log('', 'Start Update Users');
         foreach ($update_users as $uid => $user) {
-          if ( variable_get('os2intra_user_import_user_disable_method', 'termination_date') == 'csv_file' && isset($active_users[$uid])) {
+          if ( $user_disable_method['csv_file'] && isset($active_users[$uid])) {
             unset($active_users[$uid]);
           }
           if (empty($user['department'])) {

@@ -149,9 +149,9 @@ $csv_cols_fallback_1 = array(
   );
   $form['os2intra_user_import_user_disable_method'] = array(
     '#title'         => t("Deactivate user if"),
-    '#type'          => 'radios',
+    '#type'          => 'checkboxes',
     '#options' =>  array('csv_file' => t('User is not exists in CVS file'), 'termination_date' => t('Termination date is expiried')),
-    '#default_value' => variable_get('os2intra_user_import_user_disable_method', 'termination_date'),
+    '#default_value' => variable_get('os2intra_user_import_user_disable_method', array('termination_date'=>'termination_date')),
   );
   $form['os2intra_user_import_user_disable_action'] = array(
     '#title'         => t("Action that sould be done when user disabled"),
