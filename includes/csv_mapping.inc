@@ -33,11 +33,14 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
     'department_name' => 'os2intra_mapping_department_name',
     'opus_roles' => 'os2intra_mapping_opus_roles'
   );
+
+  // List of fields that require cleanin up.
+  $fields_to_cleanup = ['department_name'];
+
   // Load data from file
   $csv = array_map(function ($d) {
     return str_getcsv($d, variable_get('os2intra_user_import_delimiter'));
   }, file($file_path));
-  $at_content = FALSE;
 
   foreach ($csv as $row) {
 
@@ -75,6 +78,11 @@ function _os2intra_user_import_process_file($file_path, $lines = FALSE) {
       if (isset($mapped_row['ad_name']) && !empty($mapped_row['ad_name'])) {
         $mapped_row['ad_id'] = $mapped_row['ad_name'];
       }
+    }
+
+    // Replacing chars.
+    if (in_array($field, $fields_to_cleanup)) {
+      $mapped_row[$field] = _os2intra_user_import_replace_special_chars($mapped_row[$field]);
     }
 
     $rows[] = $mapped_row;

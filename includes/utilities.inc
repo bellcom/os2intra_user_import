@@ -10,6 +10,34 @@ function _os2intra_user_import_sanitize_int($str) {
 }
 
 /**
+ * Replacing special characters in the string.
+ */
+function _os2intra_user_import_replace_special_chars($str) {
+  // Mapping of characters to their text replacements.
+  $charMap = [
+    ',' => '_',
+    '\\' => '_',
+    '/' => '_',
+    ':' => '_',
+    '*' => '_',
+    '?' => '_',
+    '"' => '_',
+    '<' => '_',
+    '>' => '_',
+    '|' => '_',
+    ' ' => '_',
+    '-' => '_',
+    '.' => '_',
+    '(' => '_',
+    ')' => '_',
+    '&' => 'og'
+  ];
+
+  // Replace characters based on the mapping
+  return strtr($str, $charMap);
+}
+
+/**
  * Helper for user title
  */
 function os2intra_user_import_user_title($job_description) {
