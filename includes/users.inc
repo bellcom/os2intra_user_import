@@ -4,7 +4,7 @@
  */
 function os2intra_user_import_disable_users($users_to_disable = NULL) {
   os2intra_user_import_save_log('', 'Start disabling users');
-  $user_disable_method = variable_get('os2intra_user_import_user_disable_method', array('termination_date'=>'termination_date'));
+  $user_disable_method = variable_get('os2intra_user_import_user_disable_method', array('termination_date'=> NULL, 'csv_file'));
   if ($user_disable_method['termination_date']) {
     os2intra_user_import_disable_users_based_on_termination_date();
   }
